@@ -1,3 +1,367 @@
+// ---------------------------------------
+// Intro loader: white screen with a scrolling status
+// ticker (left), an organic stuttering percent counter (middle),
+// and a scramble-typing message (right). At 100% it exits
+// with a smooth feathered radial glyph ripple that reveals
+// the dark page and seamlessly triggers the background canvas.
+// ---------------------------------------
+(function () {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+
+  const canvas = document.getElementById('loader-canvas');
+  const percentEl = document.getElementById('loader-percent-num');
+  const scrollListEl = document.getElementById('loader-scroll-list');
+  const typeEl = document.getElementById('loader-type');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let loaderActive = true;
+
+  function finish() {
+    loaderActive = false;
+    document.body.classList.remove('is-loading');
+    if (loader.parentNode) {
+      loader.remove();
+    }
+  }
+
+  if (reduceMotion || !canvas) {
+    finish();
+    return;
+  }
+
+  const BG_COLOR = '#ffffff';
+  const GLYPHS = ['+', ':', '.'];
+
+  const LOAD_MS = 2200;
+  const PAUSE_AT_100_MS = 450;
+  const POST_DONE_SCROLL_MS = 850;
+  const WAVE_MS = 1850;
+
+  const SCROLL_LINES = [
+    '// INITIALIZING PROFILE...',
+    '// LOADING SKILLS.JSON...',
+    '// COMPILING EXPERIENCE...',
+    '// FETCHING PROJECTS...',
+    '// PARSING RESUME.MD...',
+    '// CONNECTING TO GITHUB...',
+    '// RENDERING INTERFACE...',
+    '// WARMING UP CACHE...',
+    '// SYNCING TIMELINE...',
+    '// BUILDING LAYOUT...',
+    '// PREPARING CONTENT...',
+    '// ALMOST THERE...',
+  ];
+
+  const TYPE_TEXT =
+    '// HANG TIGHT \u2014 THE PROFILE IS COMPILING. IT MIGHT TAKE A MOMENT, BUT THE PAYLOAD IS WORTH THE WAIT.';
+  const SCRAMBLE_CHARS = '!<>-_\\/[]{}=+*^?#~%&';
+  const SCRAMBLE_WINDOW = 12;
+
+  const ctx = canvas.getContext('2d');
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  // --- Left column: smooth scrolling ticker with continuous optical highlight ---
+  const repeatedLines = SCROLL_LINES.concat(SCROLL_LINES).concat(SCROLL_LINES);
+  repeatedLines.forEach((text) => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    scrollListEl.appendChild(li);
+  });
+
+  const scrollContainer = scrollListEl.parentElement;
+  let singleSetHeight = 0;
+  let scrollOffset = 0;
+  let lastScrollTime = null;
+  let activeLi = null;
+  const SCROLL_SPEED = 28; // px/sec
+
+  function updateTickerHeight() {
+    singleSetHeight = scrollListEl.scrollHeight / 3;
+  }
+  updateTickerHeight();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateTickerHeight);
+  }
+  window.addEventListener('resize', updateTickerHeight, { passive: true });
+
+  function updateActiveLine() {
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const centerY = containerRect.top + containerRect.height / 2;
+    let closest = null;
+    let closestDist = Infinity;
+    const lis = scrollListEl.children;
+    for (let i = 0; i < lis.length; i++) {
+      const li = lis[i];
+      const r = li.getBoundingClientRect();
+      if (r.bottom < containerRect.top - 20 || r.top > containerRect.bottom + 20) continue;
+      const mid = r.top + r.height / 2;
+      const d = Math.abs(mid - centerY);
+      if (d < closestDist) {
+        closestDist = d;
+        closest = li;
+      }
+    }
+    if (closest && closest !== activeLi) {
+      if (activeLi) activeLi.classList.remove('is-active');
+      closest.classList.add('is-active');
+      activeLi = closest;
+    }
+  }
+
+  function scrollFrame(now) {
+    if (!loaderActive) return;
+    if (lastScrollTime == null) lastScrollTime = now;
+    const dt = (now - lastScrollTime) / 1000;
+    lastScrollTime = now;
+    scrollOffset += SCROLL_SPEED * dt;
+    if (singleSetHeight && scrollOffset >= singleSetHeight) {
+      scrollOffset -= singleSetHeight;
+    }
+    scrollListEl.style.transform = `translateY(${-scrollOffset}px)`;
+    updateActiveLine();
+    requestAnimationFrame(scrollFrame);
+  }
+  requestAnimationFrame(scrollFrame);
+
+  // --- Middle: organic stuttering percent counter ---
+  function buildStutterSteps() {
+    const steps = [];
+    let tAcc = 0;
+    let pctAcc = 0;
+    while (pctAcc < 100) {
+      const remaining = 100 - pctAcc;
+      const jump = Math.min(remaining, Math.max(1, Math.floor(Math.random() * 6) + 1));
+      pctAcc += jump;
+      const isHold = Math.random() < 0.2 && pctAcc < 95;
+      const dt = isHold ? (0.04 + Math.random() * 0.07) : (0.015 + Math.random() * 0.035);
+      tAcc += dt;
+      steps.push({ t: tAcc, pct: pctAcc });
+    }
+    const maxT = steps[steps.length - 1].t;
+    steps.forEach((s) => { s.t = s.t / maxT; });
+    steps[steps.length - 1].t = 1;
+    return steps;
+  }
+  const stutterSteps = buildStutterSteps();
+
+  function tickType(p) {
+    const total = TYPE_TEXT.length;
+    const revealed = Math.floor(p * total);
+    let out = '';
+    for (let i = 0; i < total; i++) {
+      if (i < revealed) {
+        out += TYPE_TEXT[i];
+      } else if (i < revealed + SCRAMBLE_WINDOW) {
+        const ch = TYPE_TEXT[i];
+        if (ch === ' ' || ch === '\u2014' || ch === '-' || ch === '.') {
+          out += ch;
+        } else {
+          out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        }
+      } else {
+        break;
+      }
+    }
+    typeEl.textContent = out;
+  }
+
+  const loadStart = performance.now();
+  function loadFrame(now) {
+    const p = Math.min(1, (now - loadStart) / LOAD_MS);
+
+    let pct = 0;
+    for (const s of stutterSteps) {
+      if (p >= s.t) pct = s.pct; else break;
+    }
+    percentEl.textContent = pct < 100 ? String(pct).padStart(2, '0') : '100';
+
+    tickType(p);
+
+    if (p < 1) {
+      requestAnimationFrame(loadFrame);
+    } else {
+      percentEl.textContent = '100';
+      percentEl.parentElement.classList.add('is-complete');
+      typeEl.textContent = TYPE_TEXT;
+
+      // 1. Pause at 100%
+      setTimeout(() => {
+        // 2. Change 100% to (done)
+        const signEl = percentEl.parentElement.querySelector('.loader-percent-sign');
+        if (signEl) signEl.style.display = 'none';
+        percentEl.textContent = 'done';
+        percentEl.parentElement.classList.remove('is-complete');
+        percentEl.parentElement.classList.add('is-done');
+
+        // 3. Keep the left ticker scrolling smoothly for a bit more before exit
+        setTimeout(startExit, POST_DONE_SCROLL_MS);
+      }, PAUSE_AT_100_MS);
+    }
+  }
+  requestAnimationFrame(loadFrame);
+
+  // --- Exit: initiate the feathered glyph shockwave ripple ---
+  function startExit() {
+    loader.classList.add('is-exiting');
+    runRipple();
+  }
+
+  function runRipple() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.fillStyle = BG_COLOR;
+    ctx.fillRect(0, 0, w, h);
+    loader.style.background = 'transparent';
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const maxR = Math.hypot(cx, cy) * 1.08 + 36 * dpr;
+    const cellW = 14 * dpr;
+    const cellH = 18 * dpr;
+    const bandWidth = cellW * 4.2;
+
+    const waveStart = performance.now();
+    let burstTriggered = false;
+
+    function frame(now) {
+      const t = Math.min(1, (now - waveStart) / WAVE_MS);
+      // Smooth physical ease-out expansion
+      const p = 1 - Math.pow(1 - t, 3.2);
+      const baseR = p * maxR;
+
+      if (t >= 0.05 && !burstTriggered) {
+        burstTriggered = true;
+        if (typeof window.__triggerBgBurst === 'function') {
+          window.__triggerBgBurst(0.5, 0.5);
+        }
+      }
+
+      ctx.save();
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Draw solid background
+      ctx.fillStyle = BG_COLOR;
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. Feathered radial erase (anti-aliased circular aperture)
+      ctx.globalCompositeOperation = 'destination-out';
+      const feather = Math.max(24 * dpr, cellW * 3);
+      const innerR = Math.max(0, baseR - feather);
+      const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, baseR);
+      grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseR, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.restore();
+
+      // 3. Render high-contrast rattling glyph shockwave along aperture
+      ctx.save();
+      ctx.font = `bold ${13 * dpr}px "Space Mono", monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const echo1Dist = baseR - bandWidth * 1.8;
+      const echo2Dist = baseR - bandWidth * 3.6;
+
+      const minCol = Math.max(0, Math.floor((cx - baseR - bandWidth * 2.5) / cellW));
+      const maxCol = Math.min(Math.ceil(w / cellW), Math.ceil((cx + baseR + bandWidth * 2.5) / cellW));
+      const minRow = Math.max(0, Math.floor((cy - baseR - bandWidth * 2.5) / cellH));
+      const maxRow = Math.min(Math.ceil(h / cellH), Math.ceil((cy + baseR + bandWidth * 2.5) / cellH));
+
+      for (let row = minRow; row <= maxRow; row++) {
+        const baseY = row * cellH + cellH / 2;
+        for (let col = minCol; col <= maxCol; col++) {
+          const baseX = col * cellW + cellW / 2;
+          const dx = baseX - cx;
+          const dy = baseY - cy;
+          const dist = Math.hypot(dx, dy);
+
+          // Radial boundary wobble / organic ripple rattle
+          const angle = Math.atan2(dy, dx);
+          const wobble = Math.sin(angle * 7 + now * 0.018) * (3.5 * dpr) +
+                         Math.cos(angle * 13 - now * 0.024) * (2 * dpr);
+          const effectiveR = baseR + wobble;
+
+          // Primary shockwave ring
+          const crestDist = Math.abs(dist - effectiveR);
+          if (crestDist < bandWidth) {
+            const norm = 1 - (crestDist / bandWidth);
+            const alpha = Math.sin(norm * Math.PI * 0.5) * (1 - t * 0.18);
+            if (alpha > 0.02) {
+              // High-frequency character cycling for matrix rattle effect
+              const charCycle = Math.floor(now * 0.035 + row * 7 + col * 13);
+              const glyph = GLYPHS[charCycle % GLYPHS.length];
+
+              // Positional jitter / rattle vibration
+              const rattleAmt = Math.sin(norm * Math.PI) * (2.8 * dpr);
+              const jx = Math.sin(now * 0.08 + row * 19 + col * 31) * rattleAmt;
+              const jy = Math.cos(now * 0.08 + row * 23 + col * 17) * rattleAmt;
+
+              if (dist >= effectiveR) {
+                // Leading shockwave front - vivid contrast with cyber cyan / deep ink
+                ctx.fillStyle = `rgba(14, 184, 217, ${alpha * 0.95})`;
+              } else {
+                ctx.fillStyle = `rgba(18, 20, 22, ${alpha * 0.9})`;
+              }
+              ctx.fillText(glyph, baseX + jx, baseY + jy);
+            }
+          }
+
+          // Echo ring 1
+          if (echo1Dist > 0) {
+            const e1Dist = Math.abs(dist - echo1Dist);
+            if (e1Dist < bandWidth * 0.85) {
+              const norm = 1 - (e1Dist / (bandWidth * 0.85));
+              const alpha = norm * norm * 0.55 * (1 - t * 0.28);
+              if (alpha > 0.02) {
+                const charCycle = Math.floor(now * 0.025 + row * 5 + col * 11);
+                const glyph = GLYPHS[(charCycle + 1) % GLYPHS.length];
+                const jx = Math.sin(now * 0.06 + row * 11) * (1.5 * dpr) * norm;
+                const jy = Math.cos(now * 0.06 + col * 13) * (1.5 * dpr) * norm;
+                ctx.fillStyle = `rgba(99, 99, 238, ${alpha})`;
+                ctx.fillText(glyph, baseX + jx, baseY + jy);
+              }
+            }
+          }
+
+          // Echo ring 2
+          if (echo2Dist > 0) {
+            const e2Dist = Math.abs(dist - echo2Dist);
+            if (e2Dist < bandWidth * 0.65) {
+              const norm = 1 - (e2Dist / (bandWidth * 0.65));
+              const alpha = norm * norm * 0.38 * (1 - t * 0.45);
+              if (alpha > 0.02) {
+                const charCycle = Math.floor(now * 0.02 + row * 3 + col * 7);
+                const glyph = GLYPHS[(charCycle + 2) % GLYPHS.length];
+                ctx.fillStyle = `rgba(189, 99, 238, ${alpha})`;
+                ctx.fillText(glyph, baseX, baseY);
+              }
+            }
+          }
+        }
+      }
+      ctx.restore();
+
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        finish();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+})();
+
 // Background: contour-field grid of '+', ':', '.' glyphs
 // Ported from refact0r.dev's compiled canvas animation (layered sine waves +
 // value-noise domain warp drawn as a monospace character grid).
@@ -68,6 +432,7 @@ if (canvas) {
     if (reduceMotion.matches) return;
     burst = { x, y, startedAt: performance.now() };
   }
+  window.__triggerBgBurst = triggerBurst;
 
   function draw(time = 0) {
     const w = canvas.width, h = canvas.height;

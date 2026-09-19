@@ -7,9 +7,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
-<body>
+<body class="is-loading">
+
+  <div id="loader" aria-hidden="true">
+    <canvas id="loader-canvas"></canvas>
+    <div class="loader-grid">
+      <div class="loader-col loader-col-left">
+        <div class="loader-scroll">
+          <ul class="loader-scroll-list" id="loader-scroll-list"></ul>
+        </div>
+      </div>
+      <div class="loader-percent">
+        <span class="loader-percent-paren">(</span><span id="loader-percent-num">00</span><span class="loader-percent-sign">%</span><span class="loader-percent-paren">)</span>
+      </div>
+      <div class="loader-col loader-col-right">
+        <p class="loader-type" id="loader-type"></p>
+      </div>
+    </div>
+  </div>
 
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
@@ -66,6 +83,6 @@
     <p class="footer-note">&copy; <span id="year"></span> [Your Name]</p>
   </footer>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>
