@@ -1,0 +1,242 @@
+/* ---------------------------------------
+   Tokens
+--------------------------------------- */
+:root {
+  --bg: #fafaf8;
+  --ink: #1b1e23;
+  --muted: #5b6169;
+  --accent: #1f6f63;
+  --accent-ink: #ffffff;
+  --border: #e4e4e0;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --max-width: 680px;
+}
+
+/* ---------------------------------------
+   Reset / base
+--------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 1em;
+  max-width: 60ch;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+a:hover,
+a:focus-visible {
+  border-bottom-color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* ---------------------------------------
+   Layout
+--------------------------------------- */
+.section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ---------------------------------------
+   Hero
+--------------------------------------- */
+.hero {
+  padding: 5rem 1.5rem 4rem;
+  text-align: left;
+}
+
+.hero-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.avatar {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 1.75rem;
+}
+
+.avatar svg {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-bg {
+  fill: var(--accent);
+}
+
+.avatar-text {
+  fill: var(--accent-ink);
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.hero h1 {
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  margin-bottom: 0.6rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1.125rem;
+  max-width: 46ch;
+  margin-bottom: 2rem;
+}
+
+.quicklinks {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.quicklinks a {
+  font-size: 0.95rem;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+}
+
+.quicklinks a:hover,
+.quicklinks a:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------------------------------------
+   Skills
+--------------------------------------- */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.skills-list li {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+/* ---------------------------------------
+   Footer / Contact
+--------------------------------------- */
+.footer {
+  padding-bottom: 4rem;
+}
+
+.contact-list {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.contact-list a {
+  font-size: 1rem;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+}
+
+.contact-list a:hover,
+.contact-list a:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.footer-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ---------------------------------------
+   Scroll-reveal (JS toggles .is-visible)
+--------------------------------------- */
+.section {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------------------------------------
+   Responsive
+--------------------------------------- */
+@media (max-width: 480px) {
+  .hero {
+    padding: 3.5rem 1.25rem 3rem;
+  }
+  .section {
+    padding: 2.5rem 1.25rem;
+  }
+  .contact-list,
+  .quicklinks {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
