@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[Your Name] — Personal Profile</title>
+  <title>Zedric Camilotes — Developer Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body class="is-loading">
 
@@ -30,59 +30,54 @@
 
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="avatar" aria-hidden="true">
-        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Initials avatar">
-          <circle cx="60" cy="60" r="60" class="avatar-bg"/>
-          <text x="50%" y="50%" dy=".08em" text-anchor="middle" dominant-baseline="middle" class="avatar-text">YN</text>
-        </svg>
+  <div class="scratch-hero-track" id="scratch-hero-track">
+    <div class="sticky-stage">
+      <div class="scratch-hero-container">
+        
+        <!-- Left Column: Floating Scramble Text, Arrow & Tagline -->
+        <div class="hero-left-col floating-unit">
+          <div class="meta-tag" id="type-doctype">&lt;!DOCTYPE developer&gt;</div>
+          
+          <div class="text-stage-wrapper">
+            <h1 class="scratch-headline" id="scratch-text-left">
+              <span class="scramble-line" id="line-1">SCROLL TO</span>
+              <span class="scramble-line" id="line-2">SCRATCH THE</span>
+              <span class="scramble-line" id="line-3">CARD</span>
+            </h1>
+          </div>
+
+          <div class="reveal-swap-stage">
+            <div class="arrow-container" id="scratch-arrow-wrap">
+              <svg class="scratch-arrow-svg" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 20H100M100 20L82 6M100 20L82 34" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <!-- Revealed Tagline Unit (Appears after scroll reveal) -->
+            <div class="tagline-unit" id="tagline-unit">
+              <div class="tech-divider-line" id="hero-divider" aria-hidden="true"></div>
+              <p class="identity-tagline" id="type-tagline">
+                just a guy who achieves full potential near deadlines.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Silver Metallic Scratch Card -->
+        <div class="hero-right-col">
+          <div class="scratch-card-wrapper" id="scratch-card-wrapper">
+            <div class="scratch-card-frame">
+              <img src="assets/avatar.jpg" alt="Zedric Camilotes" class="scratch-avatar-img" id="scratch-avatar" />
+              <canvas id="scratch-canvas"></canvas>
+              <div class="scratch-shine-overlay"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
-
-      <h1>[Your Name]</h1>
-      <p class="tagline">[Your professional tagline — e.g. "Computer Engineering Student &amp; Aspiring Developer"]</p>
-
-      <nav class="quicklinks" aria-label="Section links">
-        <a href="#about">About</a>
-        <a href="#skills">Skills</a>
-        <a href="#contact">Contact</a>
-      </nav>
     </div>
-  </header>
+  </div>
 
-  <main>
-
-    <section id="about" class="section">
-      <h2>About Me</h2>
-      <p>
-        [Short bio placeholder — write 2–4 sentences about who you are, what you're studying,
-        and what you're currently building or interested in. Keep it in your own voice.]
-      </p>
-    </section>
-
-    <section id="skills" class="section">
-      <h2>Skills &amp; Interests</h2>
-      <ul class="skills-list">
-        <li>[Skill / language]</li>
-        <li>[Skill / tool]</li>
-        <li>[Skill / framework]</li>
-        <li>[Interest]</li>
-        <li>[Interest]</li>
-      </ul>
-    </section>
-
-  </main>
-
-  <footer id="contact" class="section footer">
-    <h2>Contact</h2>
-    <ul class="contact-list">
-      <li><a href="https://github.com/your-username" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-      <li><a href="https://linkedin.com/in/your-username" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-      <li><a href="mailto:your.email@example.com">Email</a></li>
-    </ul>
-    <p class="footer-note">&copy; <span id="year"></span> [Your Name]</p>
-  </footer>
-
-  <script src="script.js?v=10"></script>
+  <script src="script.js?v=16"></script>
 </body>
 </html>

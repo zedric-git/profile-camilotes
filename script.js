@@ -1,9 +1,367 @@
 // ---------------------------------------
-// Intro loader: white screen with a scrolling status
-// ticker (left), an organic stuttering percent counter (middle),
-// and a scramble-typing message (right). At 100% it exits
-// with a smooth feathered radial glyph ripple that reveals
-// the dark page and seamlessly triggers the background canvas.
+// Homepage Scroll-Driven Scratch Engine & Scramble Controller
+// Synchronized with radial ripple transition & sticky scroll
+// ---------------------------------------
+window.__homepageTypewriterStarted = false;
+window.__startHomepageTypewriter = function () {
+  if (window.__homepageTypewriterStarted) return;
+  window.__homepageTypewriterStarted = true;
+
+  initScratchEngine();
+};
+
+// ---------------------------------------
+// Scratch Card Canvas & Scroll Engine
+// ---------------------------------------
+function initScratchEngine() {
+  const trackEl = document.getElementById('scratch-hero-track');
+  const canvas = document.getElementById('scratch-canvas');
+  const arrowWrap = document.getElementById('scratch-arrow-wrap');
+  const taglineUnit = document.getElementById('tagline-unit');
+  const statusText = document.getElementById('scratch-status-text');
+  const statusDot = document.getElementById('status-dot');
+  const cardFrame = document.querySelector('.scratch-card-frame');
+  const cardWrapper = document.getElementById('scratch-card-wrapper');
+
+  const line1El = document.getElementById('line-1');
+  const line2El = document.getElementById('line-2');
+  const line3El = document.getElementById('line-3');
+
+  if (!canvas || !trackEl) return;
+
+  const ctx = canvas.getContext('2d');
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let cardW = 0, cardH = 0;
+
+  // Offscreen canvas for scratch foil state
+  let foilCanvas = document.createElement('canvas');
+  let foilCtx = foilCanvas.getContext('2d');
+
+  // Generated organic scratch paths
+  let scratchStrokes = [];
+
+  function generateScratchStrokes(w, h) {
+    const strokes = [];
+    const totalStrokes = 160;
+
+    for (let i = 0; i < totalStrokes; i++) {
+      // Threshold starts at 0.02 so NO strokes appear at p = 0 before scrolling
+      const threshold = 0.02 + (i / totalStrokes) * 0.90;
+      
+      const angle = (Math.random() - 0.5) * Math.PI * 0.8;
+      const startX = Math.random() * w;
+      const startY = Math.random() * h;
+      const length = 40 + Math.random() * 120;
+      const endX = startX + Math.cos(angle) * length;
+      const endY = startY + Math.sin(angle) * length;
+      const r = 18 + Math.random() * 26;
+
+      strokes.push({
+        threshold,
+        startX,
+        startY,
+        endX,
+        endY,
+        r
+      });
+    }
+
+    for (let i = 0; i < 40; i++) {
+      strokes.push({
+        threshold: 0.75 + (i / 40) * 0.18,
+        startX: Math.random() * w,
+        startY: Math.random() * h,
+        endX: Math.random() * w,
+        endY: Math.random() * h,
+        r: 35 + Math.random() * 30
+      });
+    }
+
+    return strokes.sort((a, b) => a.threshold - b.threshold);
+  }
+
+  function renderSilverFoil(w, h) {
+    foilCanvas.width = Math.round(w * dpr);
+    foilCanvas.height = Math.round(h * dpr);
+    foilCtx.scale(dpr, dpr);
+
+    // 1. Brushed Silver Metallic Gradient
+    const grad = foilCtx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#f1f5f9');
+    grad.addColorStop(0.25, '#cbd5e1');
+    grad.addColorStop(0.5, '#64748b');
+    grad.addColorStop(0.75, '#94a3b8');
+    grad.addColorStop(1, '#e2e8f0');
+
+    foilCtx.fillStyle = grad;
+    foilCtx.fillRect(0, 0, w, h);
+
+    // 2. Fine Metallic Brushed Noise Lines
+    foilCtx.save();
+    foilCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    foilCtx.lineWidth = 1;
+    for (let i = 0; i < h; i += 2.5) {
+      foilCtx.beginPath();
+      foilCtx.moveTo(0, i + (Math.random() - 0.5) * 2);
+      foilCtx.lineTo(w, i + (Math.random() - 0.5) * 2);
+      foilCtx.stroke();
+    }
+    foilCtx.restore();
+
+    // 3. Foil Border & SCRATCH & WIN Watermark
+    foilCtx.save();
+    foilCtx.strokeStyle = 'rgba(15, 23, 42, 0.35)';
+    foilCtx.lineWidth = 3;
+    foilCtx.strokeRect(14, 14, w - 28, h - 28);
+
+    foilCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    foilCtx.lineWidth = 1.5;
+    foilCtx.strokeRect(18, 18, w - 36, h - 36);
+
+    const centerX = w / 2;
+    const centerY = h / 2;
+
+    // Top decorative stars line
+    foilCtx.font = `600 ${Math.max(10, Math.round(w * 0.032))}px "JetBrains Mono", monospace`;
+    foilCtx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+    foilCtx.textAlign = 'center';
+    foilCtx.textBaseline = 'middle';
+    foilCtx.fillText('✦  ✦  ✦', centerX, centerY - 28);
+
+    // Main SCRATCH & WIN text
+    const fontSize = Math.max(22, Math.round(w * 0.076));
+    foilCtx.font = `800 ${fontSize}px "JetBrains Mono", monospace`;
+
+    // White foil 3D highlight offset
+    foilCtx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+    foilCtx.fillText('SCRATCH & WIN', centerX + 1.5, centerY + 1.5);
+
+    // Dark metallic foil primary text
+    foilCtx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+    foilCtx.fillText('SCRATCH & WIN', centerX, centerY);
+
+    // Bottom decorative line
+    foilCtx.font = `600 ${Math.max(10, Math.round(w * 0.032))}px "JetBrains Mono", monospace`;
+    foilCtx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+    foilCtx.fillText('✦  ✦  ✦', centerX, centerY + 28);
+
+    foilCtx.restore();
+  }
+
+  function resizeCard() {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cardW = rect.width;
+    cardH = rect.height;
+
+    canvas.width = Math.round(cardW * dpr);
+    canvas.height = Math.round(cardH * dpr);
+
+    renderSilverFoil(cardW, cardH);
+    scratchStrokes = generateScratchStrokes(cardW, cardH);
+    updateFoilDisplay(currentProgress);
+  }
+
+  window.addEventListener('resize', resizeCard, { passive: true });
+  setTimeout(resizeCard, 50);
+
+  // --- Scroll Progress & Lerp Controller ---
+  let rawProgress = 0;
+  let currentProgress = 0;
+
+  function updateScrollProgress() {
+    const rect = trackEl.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+    const totalScrollable = rect.height - viewportH;
+
+    if (totalScrollable <= 0) {
+      rawProgress = 0;
+    } else {
+      const scrolled = -rect.top;
+      rawProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+    }
+  }
+
+  window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  updateScrollProgress();
+
+  // --- Deterministic & Stable Scramble Engine ---
+  const GLYPH_CHARS = '!<>-_/[]{}*^?#~+:%$=';
+
+  function getSeededGlyph(index, progressSeed) {
+    const hash = Math.floor(Math.abs(Math.sin(index * 12.9898 + progressSeed * 78.233) * 43758.5453));
+    return GLYPH_CHARS[hash % GLYPH_CHARS.length];
+  }
+
+  function scrambleString(initialText, finalText, p) {
+    if (p <= 0.02) return initialText;
+    if (p >= 0.94) return finalText;
+
+    const revealFrac = Math.max(0, Math.min(1, (p - 0.04) / 0.88));
+    const revealCount = Math.floor(revealFrac * finalText.length);
+    const seed = Math.floor(p * 160);
+
+    let out = '';
+    for (let i = 0; i < finalText.length; i++) {
+      if (i < revealCount) {
+        out += finalText[i];
+      } else if (i === revealCount) {
+        const ch = finalText[i];
+        if (ch === ' ' || ch === '.') out += ch;
+        else out += getSeededGlyph(i, seed);
+      } else {
+        if (i < initialText.length && p < 0.45) {
+          out += initialText[i];
+        } else {
+          const ch = finalText[i];
+          if (ch === ' ' || ch === '.') out += ch;
+          else out += getSeededGlyph(i, Math.floor(p * 25));
+        }
+      }
+    }
+    return out;
+  }
+
+  function renderTextScramble(p) {
+    if (!line1El || !line2El || !line3El) return;
+
+    line1El.textContent = scrambleString("SCROLL TO", "Hi, I am", p);
+    line2El.textContent = scrambleString("SCRATCH THE", "zedric a. camilotes.", p);
+    line3El.textContent = scrambleString("CARD", "a developer.", p);
+  }
+
+  function updateFoilDisplay(p) {
+    if (!cardW || !cardH) return;
+
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (p >= 0.96) {
+      ctx.restore();
+      return;
+    }
+
+    ctx.drawImage(foilCanvas, 0, 0, canvas.width, canvas.height);
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (let i = 0; i < scratchStrokes.length; i++) {
+      const s = scratchStrokes[i];
+      if (p >= s.threshold) {
+        ctx.beginPath();
+        ctx.lineWidth = s.r * dpr;
+        ctx.moveTo(s.startX * dpr, s.startY * dpr);
+        ctx.lineTo(s.endX * dpr, s.endY * dpr);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // --- 3D Physical Card Movement State ---
+  let cardTiltX = 0;
+  let cardTiltY = 0;
+  let cardTiltZ = 0;
+  let cardTransY = 0;
+  let cardScale = 1;
+
+  // --- Animation Loop ---
+  function tick() {
+    const scrollVelocity = (rawProgress - currentProgress);
+    currentProgress += scrollVelocity * 0.12;
+
+    if (Math.abs(rawProgress - currentProgress) < 0.0005) {
+      currentProgress = rawProgress;
+    }
+
+    // 1. Update Scratch Foil
+    updateFoilDisplay(currentProgress);
+
+    // 2. Update Left Text Scramble
+    renderTextScramble(currentProgress);
+
+    // 3. Left-to-Right Arrow Fade Out & Left-to-Right Tagline Fade In
+    const pArrow = Math.max(0, Math.min(1, (currentProgress - 0.35) / 0.28));
+    if (arrowWrap) {
+      if (pArrow >= 1) {
+        arrowWrap.style.display = 'none';
+      } else {
+        arrowWrap.style.display = 'flex';
+        const tStart = (pArrow * 130 - 15).toFixed(1);
+        const tEnd = (pArrow * 130 + 15).toFixed(1);
+        const arrowMask = `linear-gradient(to right, transparent ${tStart}%, #000 ${tEnd}%)`;
+        arrowWrap.style.webkitMaskImage = arrowMask;
+        arrowWrap.style.maskImage = arrowMask;
+        arrowWrap.style.transform = `translateX(${(pArrow * 24).toFixed(1)}px)`;
+      }
+    }
+
+    const pTagline = Math.max(0, Math.min(1, (currentProgress - 0.58) / 0.30));
+    if (taglineUnit) {
+      if (pTagline <= 0) {
+        taglineUnit.style.display = 'none';
+      } else {
+        taglineUnit.style.display = 'flex';
+        const tStart = (pTagline * 130 - 15).toFixed(1);
+        const tEnd = (pTagline * 130 + 15).toFixed(1);
+        const taglineMask = `linear-gradient(to right, #000 ${tStart}%, transparent ${tEnd}%)`;
+        taglineUnit.style.webkitMaskImage = taglineMask;
+        taglineUnit.style.maskImage = taglineMask;
+      }
+    }
+
+    // 4. Update Status Pill
+    if (statusText) {
+      const pct = Math.min(100, Math.round(currentProgress * 105));
+      if (pct >= 95) {
+        statusText.textContent = 'CARD FULLY REVEALED';
+        if (statusDot) statusDot.classList.add('is-revealed');
+      } else {
+        statusText.textContent = `CARD ${pct}% SCRATCHED`;
+        if (statusDot) statusDot.classList.remove('is-revealed');
+      }
+    }
+
+    // 5. Dynamic 3D Card Physics (Scratch motion & velocity reactive)
+    if (cardWrapper) {
+      const targetBaseY = (currentProgress - 0.5) * 16;
+      const targetBaseX = Math.sin(currentProgress * Math.PI) * -8;
+
+      const targetVelX = -scrollVelocity * 160;
+      const targetVelY = scrollVelocity * 130;
+      const targetVelZ = scrollVelocity * 50;
+      const targetTransY = scrollVelocity * 80;
+      const targetScale = 1 + Math.min(0.06, Math.abs(scrollVelocity) * 1.8);
+
+      cardTiltX += (targetBaseX + targetVelX - cardTiltX) * 0.1;
+      cardTiltY += (targetBaseY + targetVelY - cardTiltY) * 0.1;
+      cardTiltZ += (targetVelZ - cardTiltZ) * 0.1;
+      cardTransY += (targetTransY - cardTransY) * 0.1;
+      cardScale += (targetScale - cardScale) * 0.1;
+
+      cardWrapper.style.transform = `perspective(1200px) translateY(${cardTransY.toFixed(2)}px) rotateX(${cardTiltX.toFixed(2)}deg) rotateY(${cardTiltY.toFixed(2)}deg) rotateZ(${cardTiltZ.toFixed(2)}deg) scale(${cardScale.toFixed(3)})`;
+
+      const shineOverlay = cardFrame ? cardFrame.querySelector('.scratch-shine-overlay') : null;
+      if (shineOverlay) {
+        const shineAngle = 135 + cardTiltY * 1.8;
+        const opacity = 0.14 + Math.min(0.2, Math.abs(scrollVelocity) * 2.5);
+        shineOverlay.style.background = `linear-gradient(${shineAngle}deg, rgba(255, 255, 255, ${opacity}) 0%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.08) 100%)`;
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ---------------------------------------
+// Intro loader (Preserved exact colors and animations)
 // ---------------------------------------
 (function () {
   const loader = document.getElementById('loader');
@@ -23,10 +381,16 @@
     if (loader.parentNode) {
       loader.remove();
     }
+    if (typeof window.__startHomepageTypewriter === 'function' && !window.__homepageTypewriterStarted) {
+      window.__startHomepageTypewriter();
+    }
   }
 
   if (reduceMotion || !canvas) {
     finish();
+    if (typeof window.__startHomepageTypewriter === 'function') {
+      window.__startHomepageTypewriter();
+    }
     return;
   }
 
@@ -61,7 +425,7 @@
   const ctx = canvas.getContext('2d');
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  // --- Left column: smooth scrolling ticker with continuous optical highlight ---
+  // --- Left column: smooth scrolling ticker ---
   const repeatedLines = SCROLL_LINES.concat(SCROLL_LINES).concat(SCROLL_LINES);
   repeatedLines.forEach((text) => {
     const li = document.createElement('li');
@@ -195,7 +559,7 @@
         percentEl.parentElement.classList.remove('is-complete');
         percentEl.parentElement.classList.add('is-done');
 
-        // 3. Keep the left ticker scrolling smoothly for a bit more before exit
+        // 3. Exit loader
         setTimeout(startExit, POST_DONE_SCROLL_MS);
       }, PAUSE_AT_100_MS);
     }
@@ -231,7 +595,6 @@
 
     function frame(now) {
       const t = Math.min(1, (now - waveStart) / WAVE_MS);
-      // Smooth physical ease-out expansion
       const p = 1 - Math.pow(1 - t, 3.2);
       const baseR = p * maxR;
 
@@ -240,16 +603,17 @@
         if (typeof window.__triggerBgBurst === 'function') {
           window.__triggerBgBurst(0.5, 0.5);
         }
+        if (typeof window.__startHomepageTypewriter === 'function') {
+          window.__startHomepageTypewriter();
+        }
       }
 
       ctx.save();
       ctx.clearRect(0, 0, w, h);
 
-      // 1. Draw solid background
       ctx.fillStyle = BG_COLOR;
       ctx.fillRect(0, 0, w, h);
 
-      // 2. Feathered radial erase (anti-aliased circular aperture)
       ctx.globalCompositeOperation = 'destination-out';
       const feather = Math.max(24 * dpr, cellW * 3);
       const innerR = Math.max(0, baseR - feather);
@@ -264,9 +628,8 @@
 
       ctx.restore();
 
-      // 3. Render high-contrast rattling glyph shockwave along aperture
       ctx.save();
-      ctx.font = `bold ${13 * dpr}px "Space Mono", monospace`;
+      ctx.font = `bold ${13 * dpr}px "JetBrains Mono", monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -286,38 +649,32 @@
           const dy = baseY - cy;
           const dist = Math.hypot(dx, dy);
 
-          // Radial boundary wobble / organic ripple rattle
           const angle = Math.atan2(dy, dx);
           const wobble = Math.sin(angle * 7 + now * 0.018) * (3.5 * dpr) +
                          Math.cos(angle * 13 - now * 0.024) * (2 * dpr);
           const effectiveR = baseR + wobble;
 
-          // Primary shockwave ring
           const crestDist = Math.abs(dist - effectiveR);
           if (crestDist < bandWidth) {
             const norm = 1 - (crestDist / bandWidth);
             const alpha = Math.sin(norm * Math.PI * 0.5) * (1 - t * 0.18);
             if (alpha > 0.02) {
-              // High-frequency character cycling for matrix rattle effect
               const charCycle = Math.floor(now * 0.035 + row * 7 + col * 13);
               const glyph = GLYPHS[charCycle % GLYPHS.length];
 
-              // Positional jitter / rattle vibration
               const rattleAmt = Math.sin(norm * Math.PI) * (2.8 * dpr);
               const jx = Math.sin(now * 0.08 + row * 19 + col * 31) * rattleAmt;
               const jy = Math.cos(now * 0.08 + row * 23 + col * 17) * rattleAmt;
 
               if (dist >= effectiveR) {
-                // Leading shockwave front - vivid contrast with cyber cyan / deep ink
-                ctx.fillStyle = `rgba(14, 184, 217, ${alpha * 0.95})`;
+                ctx.fillStyle = `rgba(0, 210, 255, ${alpha * 0.95})`;
               } else {
-                ctx.fillStyle = `rgba(18, 20, 22, ${alpha * 0.9})`;
+                ctx.fillStyle = `rgba(13, 15, 18, ${alpha * 0.9})`;
               }
               ctx.fillText(glyph, baseX + jx, baseY + jy);
             }
           }
 
-          // Echo ring 1
           if (echo1Dist > 0) {
             const e1Dist = Math.abs(dist - echo1Dist);
             if (e1Dist < bandWidth * 0.85) {
@@ -328,13 +685,12 @@
                 const glyph = GLYPHS[(charCycle + 1) % GLYPHS.length];
                 const jx = Math.sin(now * 0.06 + row * 11) * (1.5 * dpr) * norm;
                 const jy = Math.cos(now * 0.06 + col * 13) * (1.5 * dpr) * norm;
-                ctx.fillStyle = `rgba(99, 99, 238, ${alpha})`;
+                ctx.fillStyle = `rgba(99, 102, 241, ${alpha})`;
                 ctx.fillText(glyph, baseX + jx, baseY + jy);
               }
             }
           }
 
-          // Echo ring 2
           if (echo2Dist > 0) {
             const e2Dist = Math.abs(dist - echo2Dist);
             if (e2Dist < bandWidth * 0.65) {
@@ -343,7 +699,7 @@
               if (alpha > 0.02) {
                 const charCycle = Math.floor(now * 0.02 + row * 3 + col * 7);
                 const glyph = GLYPHS[(charCycle + 2) % GLYPHS.length];
-                ctx.fillStyle = `rgba(189, 99, 238, ${alpha})`;
+                ctx.fillStyle = `rgba(168, 85, 247, ${alpha})`;
                 ctx.fillText(glyph, baseX, baseY);
               }
             }
@@ -362,14 +718,14 @@
   }
 })();
 
-// Background: contour-field grid of '+', ':', '.' glyphs
-// Ported from refact0r.dev's compiled canvas animation (layered sine waves +
-// value-noise domain warp drawn as a monospace character grid).
-const canvas = document.getElementById('bg-canvas');
+// ---------------------------------------
+// Background Canvas: contour-field grid (Neutral Slate/Silver)
+// ---------------------------------------
+const bgCanvas = document.getElementById('bg-canvas');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-if (canvas) {
-  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+if (bgCanvas) {
+  const ctx = bgCanvas.getContext('2d', { alpha: true, desynchronized: true });
 
   const cfg = {
     maxPixelRatio: 2,
@@ -389,7 +745,7 @@ if (canvas) {
     driftSpeed: 1e-4,
     pointer: { initialX: 0.5, initialY: 0.48, easing: 0.12, radius: 0.3, strength: 0.6 },
     burst: { duration: 3100, width: 0.15, widthGrowth: 0.025, fadeStart: 0.78, fadeDuration: 0.22 },
-    color: { hue: 220, saturation: 15, baseLightness: 50, burstLightness: 25, baseAlpha: 0.35, burstAlpha: 0.8 },
+    color: { hue: 215, saturation: 12, baseLightness: 60, burstLightness: 30, baseAlpha: 0.25, burstAlpha: 0.65 },
   };
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -409,17 +765,17 @@ if (canvas) {
   let dpr = 1;
   let pointer = { x: cfg.pointer.initialX, y: cfg.pointer.initialY };
   let pointerTarget = { ...pointer };
-  let burst = null; // { x, y, startedAt }
+  let burst = null;
   let rafId;
   let lastFrame = 0;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, cfg.maxPixelRatio);
-    const w = Math.round(canvas.clientWidth * dpr);
-    const h = Math.round(canvas.clientHeight * dpr);
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w;
-      canvas.height = h;
+    const w = Math.round(bgCanvas.clientWidth * dpr);
+    const h = Math.round(bgCanvas.clientHeight * dpr);
+    if (bgCanvas.width !== w || bgCanvas.height !== h) {
+      bgCanvas.width = w;
+      bgCanvas.height = h;
     }
   }
 
@@ -435,7 +791,7 @@ if (canvas) {
   window.__triggerBgBurst = triggerBurst;
 
   function draw(time = 0) {
-    const w = canvas.width, h = canvas.height;
+    const w = bgCanvas.width, h = bgCanvas.height;
     if (!w || !h) return;
 
     const drift = reduceMotion.matches ? 0 : time * cfg.driftSpeed;
@@ -456,7 +812,7 @@ if (canvas) {
     pointer.y += (pointerTarget.y - pointer.y) * cfg.pointer.easing;
 
     ctx.clearRect(0, 0, w, h);
-    ctx.font = `${cfg.grid.fontSize * dpr}px "Space Mono", monospace`;
+    ctx.font = `${cfg.grid.fontSize * dpr}px "JetBrains Mono", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -552,18 +908,11 @@ if (canvas) {
     if (document.visibilityState === 'visible') start();
   });
 
-  // Redundant safety-net redraws: covers slow web-font loading (script
-  // execution can be delayed until pending stylesheets finish), or any
-  // browser that briefly reports a stale/zero layout size on first paint.
   [0, 50, 300, 1000].forEach((delay) => setTimeout(start, delay));
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(start);
   }
 
-  // ResizeObserver catches viewport/layout changes the 'resize' event can
-  // miss or delay (dynamic mobile toolbars, scrollbar appearing/disappearing),
-  // which is what caused the canvas to size itself too small until a scroll
-  // happened to trigger a resize.
   if ('ResizeObserver' in window) {
     const ro = new ResizeObserver(scheduleResize);
     ro.observe(document.documentElement);
@@ -576,29 +925,4 @@ if (canvas) {
   reduceMotion.addEventListener('change', start);
 
   start();
-}
-
-// Set current year in footer
-document.getElementById('year').textContent = new Date().getFullYear();
-
-// Subtle reveal-on-scroll for each section
-const sections = document.querySelectorAll('.section');
-
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.15 }
-);
-
-sections.forEach((section) => observer.observe(section));
-
-// Fallback: if IntersectionObserver isn't supported, just show everything
-if (!('IntersectionObserver' in window)) {
-  sections.forEach((section) => section.classList.add('is-visible'));
 }

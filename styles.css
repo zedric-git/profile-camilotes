@@ -1,28 +1,34 @@
 /* ---------------------------------------
-   Tokens
+   Tokens — Clean Silver & Monochrome Theme
+   (Neon colors preserved in intro loader,
+   eliminated on homepage content)
 --------------------------------------- */
 :root {
-  --bg: #121416;
-  --bg-2: #191b1f;
-  --bg-3: #25272d;
-  --ink: #dae2f1;
-  --txt: #bdc7db;
-  --muted: #7c879c;
-  --muted-2: #4f5663;
-  --accent: #26bbd9;
-  --accent-2: #6363ee;
-  --accent-3: #bd63ee;
-  --accent-ink: #121416;
-  --border: #25272d;
+  --bg: #141619;
+  --bg-2: #1b1d22;
+  --bg-3: #22252c;
+  --ink: #ffffff;
+  --txt: #e2e8f0;
+  --muted: #94a3b8;
+  --muted-2: #64748b;
 
-  --font-display: "Space Mono", Georgia, serif;
-  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Silver / Neutral Accent for Homepage (Zero Neon) */
+  --accent: #ffffff;
+  --accent-rgb: 255, 255, 255;
+  --accent-silver: #cbd5e1;
+  --accent-2: #6366f1; /* reserved for intro loader only */
 
-  --max-width: 680px;
+  --border: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.32);
+
+  --font-mono: "JetBrains Mono", "Space Mono", monospace;
+  --font-body: var(--font-mono);
+
+  --max-width: 1600px;
 }
 
 /* ---------------------------------------
-   Reset / base
+   Reset / Base
 --------------------------------------- */
 * {
   box-sizing: border-box;
@@ -30,6 +36,7 @@
 
 html {
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -37,14 +44,23 @@ body {
   background: var(--bg);
   color: var(--txt);
   font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+body.is-loading {
+  overflow: hidden;
+  height: 100vh;
 }
 
 /* ---------------------------------------
-   Background canvas (floating particles)
+   Background Canvas
 --------------------------------------- */
 #bg-canvas {
   position: fixed;
@@ -57,13 +73,8 @@ body {
 }
 
 /* ---------------------------------------
-   Intro loader
+   Intro Loader (Neon colors preserved)
 --------------------------------------- */
-body.is-loading {
-  overflow: hidden;
-  height: 100vh;
-}
-
 #loader {
   position: fixed;
   inset: 0;
@@ -126,7 +137,7 @@ body.is-loading {
 }
 
 .loader-scroll-list {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 0.03em;
   line-height: 2;
@@ -160,7 +171,7 @@ body.is-loading {
 }
 
 .loader-percent {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-size: clamp(1.4rem, 3.2vw, 2.2rem);
   font-weight: 700;
@@ -196,7 +207,7 @@ body.is-loading {
 }
 
 .loader-type {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   line-height: 1.7;
   letter-spacing: 0.02em;
@@ -206,259 +217,284 @@ body.is-loading {
   min-height: 5.9em;
 }
 
-@media (max-width: 720px) {
-  .loader-grid {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    gap: 1.5rem;
-    padding: 0 1.5rem;
+/* ---------------------------------------
+   Sticky Scroll Track Hero Stage (EXPANDED SCALE)
+--------------------------------------- */
+.scratch-hero-track {
+  position: relative;
+  height: 280vh;
+  width: 100%;
+}
+
+.sticky-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(1.2rem, 3vh, 3rem) clamp(2rem, 4vw, 5rem);
+  z-index: 1;
+}
+
+.scratch-hero-container {
+  width: 100%;
+  max-width: 1560px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: clamp(3rem, 5.5vw, 6.5rem);
+  margin: 0 auto;
+}
+
+/* ---------------------------------------
+   Left Column: Floating Scramble Text (EXPANDED)
+--------------------------------------- */
+.hero-left-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.4rem, 2.8vh, 2.5rem);
+}
+
+/* Floating animation for smooth creative vibe */
+.floating-unit {
+  animation: heroFloat 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes heroFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
   }
-  .loader-percent {
-    order: -1;
-  }
-  .loader-col-left,
-  .loader-col-right {
-    max-width: 100%;
-    margin: 0;
-    text-align: center;
-  }
-  .loader-scroll {
-    height: 6em;
-  }
-  .loader-scroll-list li {
-    width: fit-content;
-    margin: 0 auto;
-    transform-origin: center center;
+  50% {
+    transform: translateY(-9px) rotate(-0.35deg);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #loader {
-    display: none;
-  }
-}
-
-h1, h2 {
-  font-family: var(--font-display);
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 1.25vw, 1.15rem);
+  color: var(--muted);
   font-weight: 500;
-  line-height: 1.15;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.text-stage-wrapper {
+  min-height: 17rem;
+  display: flex;
+  align-items: center;
+}
+
+.scratch-headline {
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 5.2vw, 5.4rem);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
   margin: 0;
+  text-shadow: 0 4px 35px rgba(255, 255, 255, 0.15);
+  word-break: break-word;
 }
 
-p {
-  margin: 0 0 1em;
-  max-width: 60ch;
+.scratch-headline .scramble-accent {
+  color: #cbd5e1;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.15s ease;
-}
-
-a:hover,
-a:focus-visible {
-  border-bottom-color: var(--accent);
-}
-
-a:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-ul {
-  padding: 0;
-  margin: 0;
-  list-style: none;
+.scratch-headline .scramble-char {
+  display: inline-block;
+  transition: transform 0.05s ease, opacity 0.05s ease;
 }
 
 /* ---------------------------------------
-   Layout
+   Revealed Arrow / Tagline Swap Stage
 --------------------------------------- */
-.section {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 3.5rem 1.5rem;
-  border-top: 1px solid var(--border);
-  background: rgba(18, 20, 22, 0.72);
-  backdrop-filter: blur(2px);
+.reveal-swap-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  min-height: 4.5rem;
+  margin-top: 0.2rem;
 }
 
-.section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+.arrow-container,
+.tagline-unit {
+  grid-area: 1 / 1;
+  width: 100%;
+}
+
+/* Animated Arrow pointing towards the card */
+.arrow-container {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  will-change: mask-image, -webkit-mask-image, transform;
+}
+
+.scratch-arrow-svg {
+  width: clamp(95px, 9.5vw, 145px);
+  height: auto;
+  color: #ffffff;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.3));
+  animation: arrowSlide 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+@keyframes arrowSlide {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(18px);
+  }
 }
 
 /* ---------------------------------------
-   Hero
+   Revealed Tagline & Tech Divider Line
 --------------------------------------- */
-.hero {
-  padding: 5rem 0 4rem;
-  text-align: left;
+.tagline-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  opacity: 1;
+  pointer-events: auto;
+  will-change: mask-image, -webkit-mask-image, transform;
 }
 
-.hero-inner {
-  max-width: var(--max-width);
+.tech-divider-line {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+  border-radius: 1px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+}
+
+.identity-tagline {
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  color: var(--muted);
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+/* ---------------------------------------
+   Right Column: Silver Metallic Scratch Card (3D DYNAMICS)
+--------------------------------------- */
+.hero-right-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scratch-card-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
   margin: 0 auto;
-  background: rgba(18, 20, 22, 0.72);
-  backdrop-filter: blur(2px);
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
-body.is-loading .hero-inner {
-  opacity: 0.88;
-  transform: translateY(6px);
+.scratch-card-frame {
+  position: relative;
+  aspect-ratio: 3 / 4.2;
+  width: 100%;
+  border-radius: 24px;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  background: var(--bg-3);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85),
+              0 0 45px rgba(255, 255, 255, 0.08);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+  transform-style: preserve-3d;
 }
 
-.avatar {
-  width: 84px;
-  height: 84px;
-  margin-bottom: 1.75rem;
+.scratch-card-frame:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 35px 90px rgba(0, 0, 0, 0.9),
+              0 0 60px rgba(255, 255, 255, 0.15);
 }
 
-.avatar svg {
+.scratch-avatar-img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.avatar-bg {
-  fill: var(--accent);
+#scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  cursor: default;
+  border-radius: 24px;
 }
 
-.avatar-text {
-  fill: var(--accent-ink);
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 500;
-}
-
-.hero h1 {
-  font-size: clamp(2.25rem, 5vw, 3rem);
-  margin-bottom: 0.6rem;
-}
-
-.tagline {
-  color: var(--muted);
-  font-size: 1.125rem;
-  max-width: 46ch;
-  margin-bottom: 2rem;
-}
-
-.quicklinks {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.quicklinks a {
-  font-size: 0.95rem;
-  color: var(--txt);
-  border-bottom: 1px solid var(--border);
-}
-
-.quicklinks a:hover,
-.quicklinks a:focus-visible {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+.scratch-shine-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, transparent 45%, transparent 55%, rgba(255, 255, 255, 0.08) 100%);
+  border-radius: 24px;
+  transition: background 0.15s ease;
 }
 
 /* ---------------------------------------
-   Skills
+   Responsive Media Queries
 --------------------------------------- */
-.skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
+@media (max-width: 900px) {
+  .scratch-hero-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
 
-.skills-list li {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.95rem;
-  color: var(--txt);
-}
+  .hero-left-col {
+    align-items: center;
+  }
 
-/* ---------------------------------------
-   Footer / Contact
---------------------------------------- */
-.footer {
-  padding-bottom: 4rem;
-}
+  .text-stage-wrapper {
+    min-height: 10rem;
+    justify-content: center;
+  }
 
-.contact-list {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
+  .scratch-headline {
+    font-size: clamp(2rem, 6vw, 3.2rem);
+  }
 
-.contact-list a {
-  font-size: 1rem;
-  color: var(--txt);
-  border-bottom: 1px solid var(--border);
-}
+  .arrow-container {
+    justify-content: center;
+  }
 
-.contact-list a:hover,
-.contact-list a:focus-visible {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-.footer-note {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin: 0;
-}
-
-/* ---------------------------------------
-   Scroll-reveal (JS toggles .is-visible)
---------------------------------------- */
-.section {
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.section.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+  .scratch-card-wrapper {
+    max-width: 320px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  .floating-unit {
+    animation: none;
   }
-  .section {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
-/* ---------------------------------------
-   Responsive
---------------------------------------- */
-@media (max-width: 480px) {
-  .hero {
-    padding: 3.5rem 0 3rem;
-  }
-  .hero-inner {
-    padding: 1.25rem;
-    margin-left: 1.25rem;
-    margin-right: 1.25rem;
-  }
-  .section {
-    padding: 2.5rem 1.25rem;
-  }
-  .contact-list,
-  .quicklinks {
-    flex-wrap: wrap;
-    gap: 1rem;
+  .scratch-arrow-svg {
+    animation: none;
   }
 }
