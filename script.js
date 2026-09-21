@@ -352,6 +352,7 @@ function initScratchEngine() {
   let cardTiltZ = 0;
   let cardTransY = 0;
   let cardScale = 1;
+  let cardDockFactor = 0;
 
   // --- Animation Loop ---
   function tick() {
@@ -412,7 +413,16 @@ function initScratchEngine() {
       }
     }
 
-    // 5. Dynamic 3D Card Physics (Scratch motion & velocity reactive)
+    // 5. Dynamic 3D Card Physics & Scroll-Driven Docking into About Me
+    const aboutCardDock = document.getElementById('about-card-dock');
+    const heroRightCol = document.querySelector('.hero-right-col');
+    const rawAboutDockProg = aboutSection ? Math.max(0, Math.min(1, (window.innerHeight - aboutSection.getBoundingClientRect().top) / (window.innerHeight * 0.65))) : 0;
+    
+    cardDockFactor += (rawAboutDockProg - cardDockFactor) * 0.12;
+    if (Math.abs(rawAboutDockProg - cardDockFactor) < 0.0005) {
+      cardDockFactor = rawAboutDockProg;
+    }
+
     if (cardWrapper) {
       const targetBaseY = (currentProgress - 0.5) * 16;
       const targetBaseX = Math.sin(currentProgress * Math.PI) * -8;
@@ -429,7 +439,25 @@ function initScratchEngine() {
       cardTransY += (targetTransY - cardTransY) * 0.1;
       cardScale += (targetScale - cardScale) * 0.1;
 
-      cardWrapper.style.transform = `perspective(1200px) translateY(${cardTransY.toFixed(2)}px) rotateX(${cardTiltX.toFixed(2)}deg) rotateY(${cardTiltY.toFixed(2)}deg) rotateZ(${cardTiltZ.toFixed(2)}deg) scale(${cardScale.toFixed(3)})`;
+      if (cardDockFactor > 0.001 && aboutCardDock && heroRightCol) {
+        const heroRect = heroRightCol.getBoundingClientRect();
+        const dockRect = aboutCardDock.getBoundingClientRect();
+
+        const deltaX = dockRect.left + (dockRect.width - heroRect.width) / 2 - heroRect.left;
+        const deltaY = dockRect.top + (dockRect.height - heroRect.height) / 2 - heroRect.top;
+        const dockScaleTarget = (dockRect.width || 240) / (heroRect.width || 410);
+
+        const currentX = deltaX * cardDockFactor;
+        const currentY = cardTransY * (1 - cardDockFactor) + deltaY * cardDockFactor;
+        const currentScale = cardScale * (1 - cardDockFactor) + (dockScaleTarget || 0.58) * cardDockFactor;
+        const currentTiltX = cardTiltX * (1 - cardDockFactor * 0.5);
+        const currentTiltY = cardTiltY * (1 - cardDockFactor * 0.5);
+        const currentTiltZ = cardTiltZ * (1 - cardDockFactor * 0.5);
+
+        cardWrapper.style.transform = `perspective(1200px) translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0px) rotateX(${currentTiltX.toFixed(2)}deg) rotateY(${currentTiltY.toFixed(2)}deg) rotateZ(${currentTiltZ.toFixed(2)}deg) scale(${currentScale.toFixed(3)})`;
+      } else {
+        cardWrapper.style.transform = `perspective(1200px) translateY(${cardTransY.toFixed(2)}px) rotateX(${cardTiltX.toFixed(2)}deg) rotateY(${cardTiltY.toFixed(2)}deg) rotateZ(${cardTiltZ.toFixed(2)}deg) scale(${cardScale.toFixed(3)})`;
+      }
 
       const shineOverlay = cardFrame ? cardFrame.querySelector('.scratch-shine-overlay') : null;
       if (shineOverlay) {
@@ -437,13 +465,70 @@ function initScratchEngine() {
         const opacity = 0.14 + Math.min(0.2, Math.abs(scrollVelocity) * 2.5);
         shineOverlay.style.background = `linear-gradient(${shineAngle}deg, rgba(255, 255, 255, ${opacity}) 0%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.08) 100%)`;
       }
+
+      // Smooth Dynamic Shadow Interpolation (Prominent 3D Elevation Shadow on Light Background)
+      if (cardFrame) {
+        const darkShadowAlpha = (0.35 * (1 - cardDockFactor)).toFixed(2);
+        const lightShadowAlpha = (0.16 * cardDockFactor).toFixed(2);
+        const borderAlpha = (0.2 * (1 - cardDockFactor) + 0.45 * cardDockFactor).toFixed(2);
+
+        cardFrame.style.boxShadow = `0 ${Math.round(16 - 2 * cardDockFactor)}px ${Math.round(45 - 10 * cardDockFactor)}px rgba(15, 23, 42, ${darkShadowAlpha}), 0 ${Math.round(8 + 10 * cardDockFactor)}px ${Math.round(20 + 20 * cardDockFactor)}px rgba(15, 23, 42, ${lightShadowAlpha})`;
+        cardFrame.style.borderColor = `rgba(148, 163, 184, ${borderAlpha})`;
+      }
     }
+
+    // 6. Update About Me Section Scroll & Pastel Wave Reveal
+    updateAboutScroll();
 
     requestAnimationFrame(tick);
   }
 
+  // --- About Me Section Scroll & Pastel Wave Controller ---
+  const aboutSection = document.getElementById('about-section');
+  const aboutWaveMask = document.getElementById('about-wave-mask');
+  let hasTriggeredAboutWave = false;
+  let currentPastelFactor = 0;
+
+  function updateAboutScroll() {
+    if (!aboutSection) return;
+    const rect = aboutSection.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+
+    // Calculate how far aboutSection has scrolled into viewport (0 to 1)
+    const rawAboutProg = Math.max(0, Math.min(1, (viewportH - rect.top) / (viewportH * 0.75)));
+
+    currentPastelFactor += (rawAboutProg - currentPastelFactor) * 0.12;
+    if (Math.abs(rawAboutProg - currentPastelFactor) < 0.001) {
+      currentPastelFactor = rawAboutProg;
+    }
+    window.__pastelFactor = currentPastelFactor;
+
+    if (currentPastelFactor > 0.45) {
+      document.body.classList.add('is-pastel-active');
+    } else {
+      document.body.classList.remove('is-pastel-active');
+    }
+
+    // Trigger white wave burst ONCE as crossing into About Me section
+    if (rawAboutProg > 0.08 && !hasTriggeredAboutWave) {
+      hasTriggeredAboutWave = true;
+      if (typeof window.__triggerBgBurst === 'function') {
+        window.__triggerBgBurst(0.5, 0.4);
+      }
+    } else if (rawAboutProg <= 0.02) {
+      hasTriggeredAboutWave = false;
+    }
+
+    if (aboutWaveMask) {
+      const maskVal = Math.max(0, Math.min(1, (viewportH - rect.top - 40) / (viewportH * 0.55)));
+      aboutWaveMask.style.setProperty('--wave-progress', maskVal.toFixed(3));
+      aboutWaveMask.style.setProperty('--wave-opacity', Math.min(1, maskVal * 2).toFixed(3));
+    }
+  }
+
   requestAnimationFrame(tick);
 }
+
 
 // ---------------------------------------
 // Intro loader (Preserved exact colors and animations)
@@ -896,19 +981,37 @@ if (bgCanvas) {
     pointer.x += (pointerTarget.x - pointer.x) * cfg.pointer.easing;
     pointer.y += (pointerTarget.y - pointer.y) * cfg.pointer.easing;
 
+    const pf = Math.max(0, Math.min(1, window.__pastelFactor || 0));
+
     ctx.clearRect(0, 0, w, h);
+
     ctx.font = `${cfg.grid.fontSize * dpr}px "JetBrains Mono", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     const { primary, vertical, diagonal, warp } = cfg.pattern;
 
-    for (let py = cellH; py < h; py += cellH) {
-      for (let px = cellW; px < w; px += cellW) {
+    for (let py = cellH / 2; py < h + cellH; py += cellH) {
+      for (let px = cellW / 2; px < w + cellW; px += cellW) {
         const col = Math.round(px / cellW);
         const row = Math.round(py / cellH);
         const u = px / w;
         const v = py / h;
+
+        // Smooth non-patterned 8-bit micro-pixel threshold calculation
+        let whiteAlpha = 0;
+        if (pf > 0.001) {
+          const organicWarp = (noise(u * 8 + drift * 0.8, v * 8 - drift * 0.6) - 0.5) * 0.18;
+          const jitter = (hash(col * 3, row * 5) - 0.5) * 0.12;
+          const rawWave = (v - (1.1 - pf * 1.3)) / 0.22 + organicWarp + jitter;
+          whiteAlpha = clamp01(rawWave);
+        }
+
+        // Draw smooth organic micro-pixel white background block
+        if (whiteAlpha > 0.001) {
+          ctx.fillStyle = `rgba(248, 250, 252, ${whiteAlpha.toFixed(3)})`;
+          ctx.fillRect(px - cellW / 2, py - cellH / 2, cellW + 0.5, cellH + 0.5);
+        }
 
         const dx = u - pointer.x;
         const dy = v - pointer.y;
@@ -952,9 +1055,26 @@ if (bgCanvas) {
         const alpha =
           (cfg.color.baseAlpha + Math.max(0, pat - 0.9) * 0.8) * visibility + burstIntensity * cfg.color.burstAlpha;
         const burstAmt = clamp01(burstIntensity * 1.8);
-        const lightness = cfg.color.baseLightness + burstAmt * cfg.color.burstLightness;
 
-        ctx.fillStyle = `hsla(${cfg.color.hue}, ${cfg.color.saturation}%, ${lightness}%, ${alpha})`;
+        if (whiteAlpha > 0.01) {
+          // Smoothly adapt glyph color from silver (on dark) to dark slate (on white) based on whiteAlpha
+          const baseL = cfg.color.baseLightness * (1 - whiteAlpha) + 28 * whiteAlpha;
+          const burstL = cfg.color.burstLightness * (1 - whiteAlpha) + 85 * whiteAlpha;
+          const sat = cfg.color.saturation * (1 - whiteAlpha) + 25 * whiteAlpha;
+          const lightness = baseL + burstAmt * (burstL - baseL);
+          const cellAlpha = alpha * (1 + whiteAlpha * 0.5);
+
+          if (burstAmt > 0.25) {
+            ctx.fillStyle = `hsla(210, 85%, 45%, ${cellAlpha * 1.3})`;
+          } else {
+            ctx.fillStyle = `hsla(${cfg.color.hue}, ${sat}%, ${lightness}%, ${cellAlpha})`;
+          }
+        } else {
+          // Over Dark Background: silver contour glyphs (+, :, .)
+          const lightness = cfg.color.baseLightness + burstAmt * cfg.color.burstLightness;
+          ctx.fillStyle = `hsla(${cfg.color.hue}, ${cfg.color.saturation}%, ${lightness}%, ${alpha})`;
+        }
+
         ctx.fillText(cellHash > 0.9 ? '+' : cellHash > 0.62 ? ':' : '.', px, py);
       }
     }

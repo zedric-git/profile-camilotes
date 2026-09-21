@@ -235,7 +235,7 @@ body.is-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
   padding: clamp(1rem, 3vh, 2.5rem) clamp(1.5rem, 4vw, 3.5rem);
   z-index: 1;
 }
@@ -477,20 +477,18 @@ body.is-loading {
   aspect-ratio: 3 / 4.2;
   width: 100%;
   border-radius: 20px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   background: var(--bg-3);
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8),
-              0 0 35px rgba(255, 255, 255, 0.07);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   will-change: transform;
   transform-style: preserve-3d;
 }
 
 .scratch-card-frame:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85),
-              0 0 50px rgba(255, 255, 255, 0.12);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 20px 50px rgba(56, 189, 248, 0.18), 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .scratch-avatar-img {
@@ -588,3 +586,143 @@ body.is-loading {
     animation: none;
   }
 }
+
+/* ---------------------------------------
+   About Me Section — Transparent Backdrop over Canvas
+   --------------------------------------- */
+.about-section {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(4rem, 10vh, 8rem) clamp(1.5rem, 5vw, 4rem);
+  background: transparent;
+}
+
+.about-container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 3.5vh, 3rem);
+}
+
+/* Scroll & Wave Mask Reveal Container */
+.about-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.2rem, 4vh, 3.5rem);
+  opacity: var(--wave-opacity, 0);
+  transform: translateY(calc((1 - var(--wave-progress, 0)) * 30px));
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, #000 calc(var(--wave-progress, 0) * 180%), transparent calc(var(--wave-progress, 0) * 180% + 25%));
+  mask-image: radial-gradient(circle at 50% 0%, #000 calc(var(--wave-progress, 0) * 180%), transparent calc(var(--wave-progress, 0) * 180% + 25%));
+  will-change: opacity, transform;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Top Grid: Avatar Dock on Left | Headline & Paragraph 1 on Right */
+.about-top-grid {
+  display: grid;
+  grid-template-columns: clamp(190px, 24vw, 240px) 1fr;
+  gap: clamp(1.8rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+/* Compact Card Docking Slot */
+.about-card-dock {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 3 / 3.8;
+  border-radius: 22px;
+}
+
+.about-card-dock .scratch-card-wrapper {
+  max-width: 100%;
+  width: 100%;
+}
+
+.dock-avatar-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  will-change: transform;
+}
+
+.dock-avatar-frame:hover {
+  transform: scale(1.03) rotate(-0.8deg);
+  box-shadow: 0 24px 50px rgba(56, 189, 248, 0.2);
+}
+
+.dock-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+/* Top Text Area */
+.about-top-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.about-lottery-headline {
+  margin: 0;
+  font-family: 'Dancing Script', 'Brush Script MT', cursive;
+  font-size: clamp(2.3rem, 4.4vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+  text-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
+/* Bio Paragraph Styling */
+.bio-paragraph {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(1.02rem, 1.4vw, 1.2rem);
+  line-height: 1.8;
+  color: #334155;
+  letter-spacing: -0.01em;
+}
+
+.about-bottom-text {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .about-top-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .about-card-dock {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  .about-lottery-headline {
+    font-size: clamp(1.9rem, 6.5vw, 2.8rem);
+    text-align: center;
+  }
+  .bio-paragraph {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+}
+
+
+
