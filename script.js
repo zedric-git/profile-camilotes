@@ -224,12 +224,95 @@ function initScratchEngine() {
     return out;
   }
 
+  // --- Smooth Glitch & Scroll-Driven Role Engine (Developer -> Designer -> Dreamer) ---
+  const W_DEV = { text: 'developer.', cssClass: 'role-developer' };
+  const W_DES = { text: 'designer.', cssClass: 'role-designer' };
+  const W_DRE = { text: 'dreamer.', cssClass: 'role-dreamer' };
+
+  function smoothGlitchBetweenWords(fromWord, toWord, t, progressSeed) {
+    if (t <= 0) return fromWord;
+    if (t >= 1) return toWord;
+
+    const seed = Math.floor(t * 140 + progressSeed * 80);
+
+    if (t < 0.5) {
+      // Phase 1: Dematerialize fromWord into matrix glyphs from right to left
+      const normT = t / 0.5;
+      const glitchCount = Math.floor(normT * fromWord.length);
+      const intactCount = fromWord.length - glitchCount;
+
+      let out = '';
+      for (let i = 0; i < fromWord.length; i++) {
+        if (i < intactCount) {
+          out += fromWord[i];
+        } else {
+          const ch = fromWord[i];
+          if (ch === ' ' || ch === '.') out += ch;
+          else out += getSeededGlyph(i, seed + i);
+        }
+      }
+      return out;
+    } else {
+      // Phase 2: Rematerialize matrix glyphs into toWord from left to right
+      const normT = (t - 0.5) / 0.5;
+      const settledCount = Math.floor(normT * toWord.length);
+
+      let out = '';
+      for (let i = 0; i < toWord.length; i++) {
+        if (i < settledCount) {
+          out += toWord[i];
+        } else {
+          const ch = toWord[i];
+          if (ch === ' ' || ch === '.') out += ch;
+          else out += getSeededGlyph(i, seed + i * 7);
+        }
+      }
+      return out;
+    }
+  }
+
+  function getTypewriterRoleState(p) {
+    if (p <= 0.40) {
+      return { text: W_DEV.text, cssClass: W_DEV.cssClass };
+    } else if (p <= 0.62) {
+      // Smooth 2-phase glitch transition developer. -> designer.
+      const t = (p - 0.40) / (0.62 - 0.40);
+      const text = smoothGlitchBetweenWords(W_DEV.text, W_DES.text, t, p);
+      const cssClass = t >= 0.5 ? W_DES.cssClass : W_DEV.cssClass;
+      return { text, cssClass };
+    } else if (p <= 0.76) {
+      return { text: W_DES.text, cssClass: W_DES.cssClass };
+    } else if (p <= 0.95) {
+      // Smooth 2-phase glitch transition designer. -> dreamer.
+      const t = (p - 0.76) / (0.95 - 0.76);
+      const text = smoothGlitchBetweenWords(W_DES.text, W_DRE.text, t, p);
+      const cssClass = t >= 0.5 ? W_DRE.cssClass : W_DES.cssClass;
+      return { text, cssClass };
+    } else {
+      return { text: W_DRE.text, cssClass: W_DRE.cssClass };
+    }
+  }
+
   function renderTextScramble(p) {
     if (!line1El || !line2El || !line3El) return;
 
-    line1El.textContent = scrambleString("SCROLL TO", "Hi, I am", p);
-    line2El.textContent = scrambleString("SCRATCH THE", "zedric a. camilotes.", p);
-    line3El.textContent = scrambleString("CARD", "a developer.", p);
+    const pScratch = Math.min(1, p / 0.20);
+
+    // 1st Line: SCROLL TO -> Hi, I am zedric
+    line1El.textContent = scrambleString("SCROLL TO", "Hi, I am zedric", pScratch);
+
+    // 2nd Line: SCRATCH THE -> camilotes. a
+    line2El.textContent = scrambleString("SCRATCH THE", "camilotes. a", pScratch);
+
+    // 3rd Line: CARD -> developer. (with JetBrains Mono Dark Blue emphasis styling during scratch reveal)
+    if (p < 0.20) {
+      const midScratchWord = scrambleString("CARD", "developer.", pScratch);
+      line3El.innerHTML = `<span class="role-word role-developer">${midScratchWord}</span>`;
+    } else {
+      const state = getTypewriterRoleState(p);
+      const textToRender = state.text || '&nbsp;';
+      line3El.innerHTML = `<span class="role-word ${state.cssClass}">${textToRender}</span>`;
+    }
   }
 
   function updateFoilDisplay(p) {
@@ -279,14 +362,16 @@ function initScratchEngine() {
       currentProgress = rawProgress;
     }
 
-    // 1. Update Scratch Foil
-    updateFoilDisplay(currentProgress);
+    const pScratch = Math.min(1, currentProgress / 0.20);
 
-    // 2. Update Left Text Scramble
+    // 1. Update Scratch Foil (card fully clean by p = 0.20)
+    updateFoilDisplay(pScratch);
+
+    // 2. Update Left Text Scramble & Scroll-driven Typewriter
     renderTextScramble(currentProgress);
 
     // 3. Left-to-Right Arrow Fade Out & Left-to-Right Tagline Fade In
-    const pArrow = Math.max(0, Math.min(1, (currentProgress - 0.35) / 0.28));
+    const pArrow = Math.max(0, Math.min(1, (currentProgress - 0.10) / 0.18));
     if (arrowWrap) {
       if (pArrow >= 1) {
         arrowWrap.style.display = 'none';
@@ -301,7 +386,7 @@ function initScratchEngine() {
       }
     }
 
-    const pTagline = Math.max(0, Math.min(1, (currentProgress - 0.58) / 0.30));
+    const pTagline = Math.max(0, Math.min(1, (currentProgress - 0.20) / 0.15));
     if (taglineUnit) {
       if (pTagline <= 0) {
         taglineUnit.style.display = 'none';
@@ -317,7 +402,7 @@ function initScratchEngine() {
 
     // 4. Update Status Pill
     if (statusText) {
-      const pct = Math.min(100, Math.round(currentProgress * 105));
+      const pct = Math.min(100, Math.round(pScratch * 100));
       if (pct >= 95) {
         statusText.textContent = 'CARD FULLY REVEALED';
         if (statusDot) statusDot.classList.add('is-revealed');

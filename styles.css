@@ -222,7 +222,7 @@ body.is-loading {
 --------------------------------------- */
 .scratch-hero-track {
   position: relative;
-  height: 260vh;
+  height: 700vh;
   width: 100%;
 }
 
@@ -309,6 +309,71 @@ body.is-loading {
 .scratch-headline .scramble-char {
   display: inline-block;
   transition: transform 0.05s ease, opacity 0.05s ease;
+}
+
+.scramble-line {
+  display: block;
+}
+
+#line-3 {
+  display: block;
+  min-height: 1.3em;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------
+   Dynamic Role Word Styling (Developer -> Designer -> Dreamer)
+--------------------------------------- */
+.role-word {
+  display: inline-block;
+  white-space: pre;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+  vertical-align: baseline;
+  min-height: 1em;
+}
+
+/* 1. Developer: JetBrains Mono, Dark Blue font (Emphasis Size) */
+.role-word.role-developer {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.18em;
+  color: #3b82f6;
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.55);
+}
+
+/* 2. Designer: Calligraphy / Cursive font, Orange font (Emphasis Size) */
+.role-word.role-designer {
+  font-family: 'Dancing Script', 'Brush Script MT', cursive;
+  font-weight: 700;
+  font-size: 1.35em;
+  color: #f97316;
+  text-shadow: 0 0 20px rgba(249, 115, 22, 0.55);
+  letter-spacing: 0.01em;
+}
+
+/* 3. Dreamer: Bold Dreamy font, Glowing Dreamy Purple-Pink color (Emphasis Size) */
+.role-word.role-dreamer {
+  font-family: 'Fredoka', 'Comfortaa', sans-serif;
+  font-weight: 700;
+  font-size: 1.25em;
+  color: #e879f9;
+  text-shadow: 0 0 20px rgba(232, 121, 249, 0.85), 0 0 35px rgba(168, 85, 247, 0.6);
+  letter-spacing: 0.02em;
+}
+
+/* Typewriter Cursor */
+.typewriter-cursor {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--accent-silver);
+  margin-left: 1px;
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* ---------------------------------------
