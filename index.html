@@ -106,9 +106,102 @@
     </div>
   </section>
 
+  <!-- Technical Skills Horizontal Scroll Section -->
+  <div class="skills-scroll-track" id="skills-scroll-track">
+    <div class="skills-sticky-stage">
+      <div class="skills-header-floating" id="skills-header-floating">
+        <span class="skills-header-text" id="skills-typed-title"></span><span class="skills-header-cursor">|</span>
+      </div>
+
+      <div class="skills-horizontal-track" id="skills-horizontal-track">
+        <!-- 01. LANGUAGES -->
+        <div class="ide-code-float" data-parallax="0.12">
+          <div class="ide-gutter">
+            <span>01</span>
+            <span>02</span>
+            <span>03</span>
+            <span>04</span>
+          </div>
+          <div class="ide-code-body">
+            <div class="ide-line"><span class="tok-comment">// Languages</span></div>
+            <div class="ide-line">
+              <span class="tok-kw">const</span> <span class="tok-var">languages</span>: <span class="tok-type">Language</span>[] = [
+            </div>
+            <div class="ide-line ide-indent">
+              <span class="tok-str">"C"</span>, <span class="tok-str">"C++"</span>, <span class="tok-str">"C#"</span>
+            </div>
+            <div class="ide-line">];<span class="ide-cursor"></span></div>
+          </div>
+        </div>
+
+        <!-- 02. FRONTEND -->
+        <div class="ide-code-float" data-parallax="0.22">
+          <div class="ide-gutter">
+            <span>05</span>
+            <span>06</span>
+            <span>07</span>
+            <span>08</span>
+          </div>
+          <div class="ide-code-body">
+            <div class="ide-line"><span class="tok-comment">// Frontend</span></div>
+            <div class="ide-line">
+              <span class="tok-kw">import</span> { <span class="tok-type">React</span>, <span class="tok-type">HTML</span>, <span class="tok-type">CSS</span>, <span class="tok-type">JS</span> }
+            </div>
+            <div class="ide-line">
+              <span class="tok-kw">from</span> <span class="tok-str">'@frontend/core'</span>;
+            </div>
+            <div class="ide-line"><span class="tok-comment">// Responsive UI Interfaces</span></div>
+          </div>
+        </div>
+
+        <!-- 03. BACKEND -->
+        <div class="ide-code-float" data-parallax="0.16">
+          <div class="ide-gutter">
+            <span>09</span>
+            <span>10</span>
+            <span>11</span>
+            <span>12</span>
+          </div>
+          <div class="ide-code-body">
+            <div class="ide-line"><span class="tok-comment">// Backend</span></div>
+            <div class="ide-line">
+              <span class="tok-kw">async function</span> <span class="tok-fn">initBackend</span>() {
+            </div>
+            <div class="ide-line ide-indent">
+              <span class="tok-kw">return</span> <span class="tok-kw">await</span> <span class="tok-fn">connect</span>({ <span class="tok-prop">db</span>: <span class="tok-str">"SQL"</span>, <span class="tok-prop">api</span>: <span class="tok-str">"REST APIs"</span>, <span class="tok-prop">runtime</span>: <span class="tok-str">"Node.js"</span> });
+            </div>
+            <div class="ide-line">}</div>
+          </div>
+        </div>
+
+        <!-- 04. TOOLS -->
+        <div class="ide-code-float" data-parallax="0.28">
+          <div class="ide-gutter">
+            <span>13</span>
+            <span>14</span>
+            <span>15</span>
+            <span>16</span>
+          </div>
+          <div class="ide-code-body">
+            <div class="ide-line"><span class="tok-comment"># Tools</span></div>
+            <div class="ide-line">
+              <span class="tok-prompt">$</span> <span class="tok-cmd">git</span> <span class="tok-flag">--tools</span>
+            </div>
+            <div class="ide-line ide-indent">
+              <span class="tok-str">"Git"</span>, <span class="tok-str">"GitHub"</span>, <span class="tok-str">"Figma"</span>, <span class="tok-str">"VSCode"</span>, <span class="tok-str">"WinForms"</span>
+            </div>
+            <div class="ide-line">
+              <span class="tok-comment"># Environment &amp; Desktop</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 
 
   <script src="script.js?v=16"></script>
 </body>
 </html>
-

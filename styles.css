@@ -724,5 +724,195 @@ body.is-loading {
   }
 }
 
+/* ---------------------------------------
+   Technical Skills Horizontal Scroll Stage
+   (Card-Free IDE Text Floats)
+--------------------------------------- */
+.skills-scroll-track {
+  position: relative;
+  height: 450vh;
+  width: 100%;
+  z-index: 3;
+}
+
+.skills-sticky-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.skills-header-floating {
+  position: absolute;
+  top: clamp(2rem, 6vh, 4.5rem);
+  left: clamp(2rem, 8vw, 8rem);
+  font-family: var(--font-mono);
+  font-size: clamp(1.6rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.skills-header-text {
+  color: #1e293b;
+  text-shadow: 0 2px 14px rgba(15, 23, 42, 0.12);
+}
+
+.skills-header-cursor {
+  display: inline-block;
+  color: #0284c7;
+  font-weight: 400;
+  font-size: 1.05em;
+  margin-left: 2px;
+  text-shadow: 0 0 10px rgba(2, 132, 199, 0.6);
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+.skills-horizontal-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: clamp(6rem, 15vw, 20rem);
+  padding: 0 clamp(4rem, 12vw, 16rem);
+  will-change: transform;
+}
+
+/* Floating IDE Code Block (Zero Cards / Zero Backgrounds) */
+.ide-code-float {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: clamp(1.05rem, 1.8vw, 1.55rem);
+  line-height: 1.85;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+  will-change: transform;
+  transition: filter 0.3s ease;
+}
+
+.ide-code-float:hover {
+  filter: drop-shadow(0 16px 36px rgba(56, 189, 248, 0.25));
+}
+
+.ide-gutter {
+  display: flex;
+  flex-direction: column;
+  color: #475569;
+  user-select: none;
+  font-size: 0.85em;
+  padding-right: 1rem;
+  text-align: right;
+  opacity: 0.65;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.ide-gutter span {
+  display: block;
+}
+
+.ide-code-body {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.ide-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 1.85em;
+}
+
+.ide-indent {
+  padding-left: 2em;
+}
+
+/* Syntax Highlighting Tokens */
+.tok-kw {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.tok-var {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.tok-type {
+  color: #c084fc;
+  font-weight: 700;
+}
+
+.tok-fn {
+  color: #22d3ee;
+  font-weight: 600;
+}
+
+.tok-str {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.tok-comment {
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.tok-prop {
+  color: #f472b6;
+}
+
+.tok-prompt {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.tok-cmd {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.tok-flag {
+  color: #a78bfa;
+}
+
+/* Blinking IDE Cursor */
+.ide-cursor {
+  display: inline-block;
+  width: 0.52em;
+  height: 1.1em;
+  background: #38bdf8;
+  margin-left: 0.2em;
+  vertical-align: middle;
+  border-radius: 1px;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  animation: cursorBlink 0.8s step-end infinite;
+}
+
+@media (max-width: 768px) {
+  .ide-code-float {
+    font-size: clamp(0.9rem, 3.6vw, 1.2rem);
+    gap: 0.8rem;
+  }
+  .skills-horizontal-track {
+    gap: clamp(4rem, 10vw, 8rem);
+    padding: 0 6vw;
+  }
+}
+
 
 

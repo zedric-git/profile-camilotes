@@ -480,7 +480,60 @@ function initScratchEngine() {
     // 6. Update About Me Section Scroll & Pastel Wave Reveal
     updateAboutScroll();
 
+    // 7. Update Technical Skills Horizontal Scroll & Floating IDE Parallax
+    updateSkillsScroll();
+
     requestAnimationFrame(tick);
+  }
+
+  // --- Technical Skills Horizontal Scroll & Floating IDE Parallax Engine ---
+  const skillsTrackEl = document.getElementById('skills-scroll-track');
+  const skillsHorizontalTrack = document.getElementById('skills-horizontal-track');
+  const ideFloats = document.querySelectorAll('.ide-code-float');
+  let currentSkillsProg = 0;
+
+  const TARGET_SKILLS_TITLE = "TECHNICAL SKILLS & TOOLSTACK";
+  const skillsTitleEl = document.getElementById('skills-typed-title');
+
+  function updateSkillsScroll() {
+    if (!skillsTrackEl || !skillsHorizontalTrack) return;
+    const rect = skillsTrackEl.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+    const totalScrollable = rect.height - viewportH;
+
+    let rawProg = 0;
+    if (totalScrollable > 0) {
+      const scrolled = -rect.top;
+      rawProg = Math.max(0, Math.min(1, scrolled / totalScrollable));
+    }
+
+    currentSkillsProg += (rawProg - currentSkillsProg) * 0.12;
+    if (Math.abs(rawProg - currentSkillsProg) < 0.0005) {
+      currentSkillsProg = rawProg;
+    }
+
+    // Scroll-driven Typewriter Transition for Header
+    if (skillsTitleEl) {
+      const typeProg = Math.max(0, Math.min(1, currentSkillsProg / 0.18));
+      const revealCount = Math.floor(typeProg * TARGET_SKILLS_TITLE.length);
+      skillsTitleEl.textContent = TARGET_SKILLS_TITLE.substring(0, revealCount);
+    }
+
+    const trackWidth = skillsHorizontalTrack.scrollWidth;
+    const viewportWidth = window.innerWidth;
+    const maxTranslateX = trackWidth - viewportWidth + (viewportWidth * 0.12);
+
+    const currentX = -currentSkillsProg * Math.max(0, maxTranslateX);
+    skillsHorizontalTrack.style.transform = `translate3d(${currentX.toFixed(2)}px, 0, 0)`;
+
+    if (ideFloats.length > 0) {
+      ideFloats.forEach((floatEl) => {
+        const factor = parseFloat(floatEl.getAttribute('data-parallax') || '0.2');
+        const parallaxX = (currentSkillsProg - 0.5) * factor * 140;
+        const parallaxY = Math.sin(currentSkillsProg * Math.PI * 2 + factor * 8) * 6;
+        floatEl.style.transform = `translate3d(${parallaxX.toFixed(2)}px, ${parallaxY.toFixed(2)}px, 0)`;
+      });
+    }
   }
 
   // --- About Me Section Scroll & Pastel Wave Controller ---
