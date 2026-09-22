@@ -827,6 +827,7 @@ body.is-loading {
   display: flex;
   flex-direction: column;
   white-space: nowrap;
+  color: #1e293b;
 }
 
 .ide-line {
