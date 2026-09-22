@@ -914,5 +914,207 @@ body.is-loading {
   }
 }
 
+/* ---------------------------------------
+   Site Footer Section (Dark Mode & Interactive Banner)
+--------------------------------------- */
+.site-footer {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  background: transparent;
+  color: var(--txt);
+  padding-top: clamp(4rem, 8vh, 6rem);
+  padding-bottom: 0;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.footer-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vh, 5rem);
+}
+
+.footer-top-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+/* Left CTA Column */
+.footer-cta-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.footer-headline {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+  max-width: 620px;
+  text-transform: uppercase;
+  text-shadow: 0 4px 25px rgba(255, 255, 255, 0.1);
+}
+
+.footer-cta-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  padding: 0.85em 1.6em;
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.footer-btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+  border: 1px solid var(--ink);
+  box-shadow: 0 4px 18px rgba(255, 255, 255, 0.15);
+}
+
+.footer-btn-primary:hover {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.25);
+}
+
+.footer-btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(8px);
+}
+
+.footer-btn-secondary:hover {
+  border-color: var(--ink);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-arrow {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* Right Nav / Socials Column */
+.footer-nav-col {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footer-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  min-width: 220px;
+}
+
+.footer-link-header {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.footer-link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--txt);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--ink);
+  transform: translateX(4px);
+}
+
+.link-arrow {
+  font-size: 0.9em;
+  color: var(--muted);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-link:hover .link-arrow {
+  color: var(--ink);
+  transform: translate(2px, -2px);
+}
+
+/* Bottom Interactive Canvas Banner */
+.footer-banner-wrap {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  padding: 1rem 0;
+  line-height: 0;
+}
+
+#footer-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(100px, 18vh, 220px);
+  cursor: crosshair;
+  user-select: none;
+}
+
+@media (max-width: 840px) {
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .footer-nav-col {
+    justify-content: flex-start;
+  }
+  #footer-canvas {
+    height: clamp(70px, 14vh, 130px);
+  }
+}
+
+
 
 

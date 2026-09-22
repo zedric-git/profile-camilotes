@@ -539,6 +539,7 @@ function initScratchEngine() {
   // --- About Me Section Scroll & Pastel Wave Controller ---
   const aboutSection = document.getElementById('about-section');
   const aboutWaveMask = document.getElementById('about-wave-mask');
+  const siteFooter = document.getElementById('site-footer');
   let hasTriggeredAboutWave = false;
   let currentPastelFactor = 0;
 
@@ -550,9 +551,18 @@ function initScratchEngine() {
     // Calculate how far aboutSection has scrolled into viewport (0 to 1)
     const rawAboutProg = Math.max(0, Math.min(1, (viewportH - rect.top) / (viewportH * 0.75)));
 
-    currentPastelFactor += (rawAboutProg - currentPastelFactor) * 0.12;
-    if (Math.abs(rawAboutProg - currentPastelFactor) < 0.001) {
-      currentPastelFactor = rawAboutProg;
+    // Calculate footer scroll progression to transition background back to dark #141619
+    let footerProg = 0;
+    if (siteFooter) {
+      const footerRect = siteFooter.getBoundingClientRect();
+      footerProg = Math.max(0, Math.min(1, (viewportH - footerRect.top) / (viewportH * 0.75)));
+    }
+
+    const targetPastelFactor = rawAboutProg * (1 - footerProg);
+
+    currentPastelFactor += (targetPastelFactor - currentPastelFactor) * 0.12;
+    if (Math.abs(targetPastelFactor - currentPastelFactor) < 0.001) {
+      currentPastelFactor = targetPastelFactor;
     }
     window.__pastelFactor = currentPastelFactor;
 
@@ -1184,3 +1194,191 @@ if (bgCanvas) {
 
   start();
 }
+
+// ---------------------------------------
+// Interactive Footer Dot-Matrix Canvas ("PORTFOLIO/CAMILOTES")
+// High-performance dot-matrix rendering with hover distortion physics
+// ---------------------------------------
+(function initFooterCanvas() {
+  const canvas = document.getElementById('footer-canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  const TEXT = 'PORTFOLIO/CAMILOTES';
+  let dots = [];
+  let mouse = { x: -9999, y: -9999, active: false, targetX: -9999, targetY: -9999 };
+
+  // Offscreen canvas to rasterize text
+  const offscreen = document.createElement('canvas');
+  const offCtx = offscreen.getContext('2d', { willReadFrequently: true });
+
+  function buildGrid() {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = rect.width;
+    const h = rect.height;
+
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+
+    // Size offscreen canvas
+    offscreen.width = Math.round(w);
+    offscreen.height = Math.round(h);
+
+    offCtx.clearRect(0, 0, w, h);
+    offCtx.fillStyle = '#ffffff';
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
+
+    // Calculate font size to fit canvas width with margin
+    let fontSize = Math.min(h * 0.72, (w * 0.95) / (TEXT.length * 0.62));
+    fontSize = Math.max(22, Math.floor(fontSize));
+
+    offCtx.font = `900 ${fontSize}px "JetBrains Mono", "Space Mono", monospace`;
+    offCtx.fillText(TEXT, w / 2, h / 2);
+
+    const imgData = offCtx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    // Grid spacing (dot pitch)
+    const gap = Math.max(3, Math.floor(fontSize / 18));
+    dots = [];
+
+    for (let y = 0; y < h; y += gap) {
+      for (let x = 0; x < w; x += gap) {
+        const index = (y * w + x) * 4;
+        const alpha = data[index + 3];
+
+        if (alpha > 80) {
+          const originX = x * dpr;
+          const originY = y * dpr;
+          dots.push({
+            x: originX,
+            y: originY,
+            ox: originX,
+            oy: originY,
+            vx: 0,
+            vy: 0,
+            size: (gap * 0.72) * dpr,
+            alpha: (alpha / 255)
+          });
+        }
+      }
+    }
+  }
+
+  function onPointerMove(e) {
+    const rect = canvas.getBoundingClientRect();
+    mouse.targetX = (e.clientX - rect.left) * dpr;
+    mouse.targetY = (e.clientY - rect.top) * dpr;
+    mouse.active = true;
+  }
+
+  function onPointerLeave() {
+    mouse.active = false;
+    mouse.targetX = -9999;
+    mouse.targetY = -9999;
+  }
+
+  canvas.addEventListener('pointermove', onPointerMove, { passive: true });
+  canvas.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Smooth mouse position easing
+    if (mouse.active) {
+      mouse.x += (mouse.targetX - mouse.x) * 0.2;
+      mouse.y += (mouse.targetY - mouse.y) * 0.2;
+    } else {
+      mouse.x += (-9999 - mouse.x) * 0.1;
+      mouse.y += (-9999 - mouse.y) * 0.1;
+    }
+
+    const mouseRadius = 140 * dpr;
+    const maxPush = 45 * dpr;
+    const springStrength = 0.08;
+    const friction = 0.82;
+    const time = performance.now() * 0.003;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+
+      // Physics & mouse distortion calculations
+      const dx = dot.x - mouse.x;
+      const dy = dot.y - mouse.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < mouseRadius && dist > 0) {
+        const force = Math.pow((mouseRadius - dist) / mouseRadius, 1.8);
+        const angle = Math.atan2(dy, dx);
+        
+        // Push vector with swirl perturbation
+        const pushX = Math.cos(angle + Math.sin(time + i * 0.05) * 0.4) * force * maxPush;
+        const pushY = Math.sin(angle + Math.cos(time + i * 0.05) * 0.4) * force * maxPush;
+
+        dot.vx += pushX * 0.2;
+        dot.vy += pushY * 0.2;
+      }
+
+      // Spring force returning to origin
+      const returnDx = dot.ox - dot.x;
+      const returnDy = dot.oy - dot.y;
+
+      dot.vx += returnDx * springStrength;
+      dot.vy += returnDy * springStrength;
+
+      // Friction & damping
+      dot.vx *= friction;
+      dot.vy *= friction;
+
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+
+      // Displacement distance from origin
+      const disp = Math.hypot(dot.x - dot.ox, dot.y - dot.oy);
+      const dispFactor = Math.min(1, disp / (maxPush * 0.8));
+
+      // Color shift when distorted (silver-white to glowing cyan hint)
+      if (dispFactor > 0.15) {
+        const r = Math.round(255 - dispFactor * 50);
+        const g = Math.round(255 - dispFactor * 20);
+        const b = 255;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.min(1, dot.alpha * (0.85 + dispFactor * 0.3))})`;
+      } else {
+        ctx.fillStyle = `rgba(255, 255, 255, ${(dot.alpha * 0.9).toFixed(2)})`;
+      }
+
+      // Draw dot-matrix square pixel block matching reference image
+      ctx.fillRect(
+        Math.round(dot.x - dot.size / 2),
+        Math.round(dot.y - dot.size / 2),
+        Math.max(1, dot.size),
+        Math.max(1, dot.size)
+      );
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  let resizeTimer;
+  function handleResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      buildGrid();
+    }, 100);
+  }
+
+  window.addEventListener('resize', handleResize, { passive: true });
+
+  // Initial build & start
+  setTimeout(() => {
+    buildGrid();
+    animate();
+  }, 100);
+})();
+
