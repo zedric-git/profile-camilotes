@@ -1116,6 +1116,79 @@ body.is-loading {
   }
 }
 
+/* ---------------------------------------
+ * Custom Cross & Scroll-Progressive Circle Cursor
+ * --------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  html, body, a, button, input, select, textarea, canvas, [role="button"], .scratch-card-frame, .footer-link, .footer-btn {
+    cursor: none !important;
+  }
+
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    margin-left: -20px;
+    pointer-events: none;
+    z-index: 999999;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    mix-blend-mode: difference;
+    color: #ffffff;
+    will-change: transform;
+  }
+
+  .custom-cursor.is-visible {
+    opacity: 1;
+  }
+
+  .cursor-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    transform-origin: center center;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cursor-circle-track {
+    opacity: 0.2;
+    transition: r 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cursor-circle-progress {
+    opacity: 1;
+    transform: rotate(-90deg);
+    transform-origin: center center;
+    transition: r 0.25s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.25s ease;
+  }
+
+  .cursor-cross-line {
+    opacity: 0.95;
+  }
+
+  /* Interactive Hover State - Scale child SVG so main cursor position transform is untouched */
+  .custom-cursor.is-hovering .cursor-svg {
+    transform: scale(1.35);
+  }
+
+  .custom-cursor.is-hovering .cursor-circle-track,
+  .custom-cursor.is-hovering .cursor-circle-progress {
+    r: 18px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .custom-cursor {
+    display: none !important;
+  }
+}
+
+
+
 
 
 

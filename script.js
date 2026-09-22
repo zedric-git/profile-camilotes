@@ -1382,3 +1382,91 @@ if (bgCanvas) {
   }, 100);
 })();
 
+// ---------------------------------------
+// Custom Cross & Scroll-Progressive Circle Cursor Controller
+// ---------------------------------------
+(function initCustomCursor() {
+  const cursor = document.getElementById('custom-cursor');
+  const progressEl = document.getElementById('cursor-circle-progress');
+  if (!cursor || !progressEl) return;
+
+  if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
+  let mouseX = -100, mouseY = -100;
+  let targetX = -100, targetY = -100;
+  let isVisible = false;
+
+  function render() {
+    mouseX += (targetX - mouseX) * 0.4;
+    mouseY += (targetY - mouseY) * 0.4;
+
+    cursor.style.transform = `translate3d(${mouseX.toFixed(2)}px, ${mouseY.toFixed(2)}px, 0)`;
+
+    requestAnimationFrame(render);
+  }
+
+  function handleMove(e) {
+    targetX = e.clientX;
+    targetY = e.clientY;
+
+    if (!isVisible) {
+      isVisible = true;
+      mouseX = targetX;
+      mouseY = targetY;
+      cursor.classList.add('is-visible');
+    }
+  }
+
+  window.addEventListener('mousemove', handleMove, { passive: true });
+  window.addEventListener('pointermove', handleMove, { passive: true });
+
+  document.addEventListener('mouseleave', (e) => {
+    if (!e.relatedTarget && !e.toElement) {
+      isVisible = false;
+      cursor.classList.remove('is-visible');
+    }
+  });
+
+  // Calculate scroll progress (0.0 to 1.0) and draw solid line progressively around crosshair
+  function updateCursorScrollProgress() {
+    const totalScrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const scrolled = Math.max(0, window.scrollY || window.pageYOffset || 0);
+    const progress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+
+    const r = (progressEl.r && progressEl.r.baseVal && progressEl.r.baseVal.value) ? progressEl.r.baseVal.value : 17;
+    const circumference = 2 * Math.PI * r;
+
+    progressEl.style.strokeDasharray = circumference.toFixed(2);
+    progressEl.style.strokeDashoffset = (circumference * (1 - progress)).toFixed(2);
+
+    // Stroke width thickens from 1.2px to 1.8px as you reach the bottom
+    const strokeW = 1.2 + (progress * 0.6);
+    progressEl.style.strokeWidth = strokeW.toFixed(2);
+  }
+
+  window.addEventListener('scroll', updateCursorScrollProgress, { passive: true });
+  window.addEventListener('resize', updateCursorScrollProgress, { passive: true });
+  updateCursorScrollProgress();
+
+  // Hover feedback on interactive elements
+  const interactiveSelector = 'a, button, input, select, textarea, canvas, .scratch-card-wrapper, .footer-btn, .footer-link, [role="button"]';
+
+  document.addEventListener('mouseover', (e) => {
+    if (e.target && e.target.closest && e.target.closest(interactiveSelector)) {
+      cursor.classList.add('is-hovering');
+      setTimeout(updateCursorScrollProgress, 50);
+    }
+  }, { passive: true });
+
+  document.addEventListener('mouseout', (e) => {
+    if (e.target && e.target.closest && e.target.closest(interactiveSelector)) {
+      cursor.classList.remove('is-hovering');
+      setTimeout(updateCursorScrollProgress, 50);
+    }
+  }, { passive: true });
+
+  render();
+})();
+
+
+
