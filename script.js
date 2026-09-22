@@ -542,6 +542,7 @@ function initScratchEngine() {
   const siteFooter = document.getElementById('site-footer');
   let hasTriggeredAboutWave = false;
   let currentPastelFactor = 0;
+  let currentFooterFactor = 0;
 
   function updateAboutScroll() {
     if (!aboutSection) return;
@@ -565,6 +566,12 @@ function initScratchEngine() {
       currentPastelFactor = targetPastelFactor;
     }
     window.__pastelFactor = currentPastelFactor;
+
+    currentFooterFactor += (footerProg - currentFooterFactor) * 0.12;
+    if (Math.abs(footerProg - currentFooterFactor) < 0.001) {
+      currentFooterFactor = footerProg;
+    }
+    window.__footerFactor = currentFooterFactor;
 
     if (currentPastelFactor > 0.45) {
       document.body.classList.add('is-pastel-active');
@@ -1045,6 +1052,7 @@ if (bgCanvas) {
     pointer.y += (pointerTarget.y - pointer.y) * cfg.pointer.easing;
 
     const pf = Math.max(0, Math.min(1, window.__pastelFactor || 0));
+    const ff = Math.max(0, Math.min(1, window.__footerFactor || 0));
 
     ctx.clearRect(0, 0, w, h);
 
@@ -1063,10 +1071,21 @@ if (bgCanvas) {
 
         // Smooth non-patterned 8-bit micro-pixel threshold calculation
         let whiteAlpha = 0;
-        if (pf > 0.001) {
+        if (pf > 0.001 || ff > 0.001) {
           const organicWarp = (noise(u * 8 + drift * 0.8, v * 8 - drift * 0.6) - 0.5) * 0.18;
           const jitter = (hash(col * 3, row * 5) - 0.5) * 0.12;
-          const rawWave = (v - (1.1 - pf * 1.3)) / 0.22 + organicWarp + jitter;
+
+          let rawWave = 0;
+          if (ff > 0.001) {
+            // At the last scroll (footer transition): Dark background enters from the bottom,
+            // keeping the white background micro-pixels visible at the top of the viewport.
+            const threshold = 1.1 - ff * 0.90;
+            rawWave = (threshold - v) / 0.22 + organicWarp + jitter;
+          } else if (pf > 0.001) {
+            // During entry into About Me: White background rises from the bottom of the viewport.
+            const threshold = 1.1 - pf * 1.3;
+            rawWave = (v - threshold) / 0.22 + organicWarp + jitter;
+          }
           whiteAlpha = clamp01(rawWave);
         }
 
