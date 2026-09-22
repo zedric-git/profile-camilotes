@@ -115,84 +115,173 @@
 
       <div class="skills-horizontal-track" id="skills-horizontal-track">
         <!-- 01. LANGUAGES -->
-        <div class="ide-code-float" data-parallax="0.12">
-          <div class="ide-gutter">
-            <span>01</span>
-            <span>02</span>
-            <span>03</span>
-            <span>04</span>
+        <div class="ide-code-float" data-parallax="0.10">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>01</span>
+              <span>02</span>
+              <span>03</span>
+              <span>04</span>
+            </div>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment">// Languages</span></div>
+              <div class="ide-line">
+                <span class="tok-kw">const</span> <span class="tok-var">languages</span>: <span class="tok-type">Language</span>[] = [
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-str">"C"</span>, <span class="tok-str">"C++"</span>, <span class="tok-str">"C#"</span>, <span class="tok-str">"JS"</span>, <span class="tok-str">"TS"</span>
+              </div>
+              <div class="ide-line">];<span class="ide-cursor"></span></div>
+            </div>
           </div>
-          <div class="ide-code-body">
-            <div class="ide-line"><span class="tok-comment">// Languages</span></div>
-            <div class="ide-line">
-              <span class="tok-kw">const</span> <span class="tok-var">languages</span>: <span class="tok-type">Language</span>[] = [
-            </div>
-            <div class="ide-line ide-indent">
-              <span class="tok-str">"C"</span>, <span class="tok-str">"C++"</span>, <span class="tok-str">"C#"</span>
-            </div>
-            <div class="ide-line">];<span class="ide-cursor"></span></div>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="C"><img src="assets/C.svg" alt="C" /></div>
+            <div class="tech-logo-badge" title="C++"><img src="assets/CPlusPlus.svg" alt="C++" /></div>
+            <div class="tech-logo-badge" title="C# (CSharp)"><img src="assets/CSharp.svg" alt="C# (CSharp)" /></div>
+            <div class="tech-logo-badge" title="JavaScript"><img src="assets/JavaScript.svg" alt="JavaScript" /></div>
+            <div class="tech-logo-badge" title="TypeScript"><img src="assets/TypeScript.svg" alt="TypeScript" /></div>
           </div>
         </div>
 
         <!-- 02. FRONTEND -->
-        <div class="ide-code-float" data-parallax="0.22">
-          <div class="ide-gutter">
-            <span>05</span>
-            <span>06</span>
-            <span>07</span>
-            <span>08</span>
+        <div class="ide-code-float" data-parallax="0.15">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>05</span>
+              <span>06</span>
+              <span>07</span>
+              <span>08</span>
+            </div>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment">// Frontend</span></div>
+              <div class="ide-line">
+                <span class="tok-kw">import</span> { <span class="tok-type">HTML</span>, <span class="tok-type">CSS</span>, <span class="tok-type">React</span>, <span class="tok-type">Next</span>, <span class="tok-type">Tailwind</span> }
+              </div>
+              <div class="ide-line">
+                <span class="tok-kw">from</span> <span class="tok-str">'@frontend/core'</span>;
+              </div>
+              <div class="ide-line"><span class="tok-comment">// Responsive UI Interfaces</span></div>
+            </div>
           </div>
-          <div class="ide-code-body">
-            <div class="ide-line"><span class="tok-comment">// Frontend</span></div>
-            <div class="ide-line">
-              <span class="tok-kw">import</span> { <span class="tok-type">React</span>, <span class="tok-type">HTML</span>, <span class="tok-type">CSS</span>, <span class="tok-type">JS</span> }
-            </div>
-            <div class="ide-line">
-              <span class="tok-kw">from</span> <span class="tok-str">'@frontend/core'</span>;
-            </div>
-            <div class="ide-line"><span class="tok-comment">// Responsive UI Interfaces</span></div>
-          </div>
-        </div>
-
-        <!-- 03. BACKEND -->
-        <div class="ide-code-float" data-parallax="0.16">
-          <div class="ide-gutter">
-            <span>09</span>
-            <span>10</span>
-            <span>11</span>
-            <span>12</span>
-          </div>
-          <div class="ide-code-body">
-            <div class="ide-line"><span class="tok-comment">// Backend</span></div>
-            <div class="ide-line">
-              <span class="tok-kw">async function</span> <span class="tok-fn">initBackend</span>() {
-            </div>
-            <div class="ide-line ide-indent">
-              <span class="tok-kw">return</span> <span class="tok-kw">await</span> <span class="tok-fn">connect</span>({ <span class="tok-prop">db</span>: <span class="tok-str">"SQL"</span>, <span class="tok-prop">api</span>: <span class="tok-str">"REST APIs"</span>, <span class="tok-prop">runtime</span>: <span class="tok-str">"Node.js"</span> });
-            </div>
-            <div class="ide-line">}</div>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="HTML5"><img src="assets/HTML5.svg" alt="HTML5" /></div>
+            <div class="tech-logo-badge" title="CSS3"><img src="assets/CSS3.svg" alt="CSS3" /></div>
+            <div class="tech-logo-badge" title="React"><img src="assets/React.svg" alt="React" /></div>
+            <div class="tech-logo-badge" title="Next.js"><img src="assets/Next.js.svg" alt="Next.js" /></div>
+            <div class="tech-logo-badge" title="Tailwind CSS"><img src="assets/Tailwind CSS.svg" alt="Tailwind CSS" /></div>
           </div>
         </div>
 
-        <!-- 04. TOOLS -->
-        <div class="ide-code-float" data-parallax="0.28">
-          <div class="ide-gutter">
-            <span>13</span>
-            <span>14</span>
-            <span>15</span>
-            <span>16</span>
+        <!-- 03. BACKEND / RUNTIME -->
+        <div class="ide-code-float" data-parallax="0.20">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>09</span>
+              <span>10</span>
+              <span>11</span>
+              <span>12</span>
+            </div>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment">// Backend / Runtime</span></div>
+              <div class="ide-line">
+                <span class="tok-kw">async function</span> <span class="tok-fn">initRuntime</span>() {
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-kw">return</span> <span class="tok-kw">await</span> <span class="tok-fn">start</span>({ <span class="tok-prop">runtime</span>: <span class="tok-str">"Node.js"</span> });
+              </div>
+              <div class="ide-line">}</div>
+            </div>
           </div>
-          <div class="ide-code-body">
-            <div class="ide-line"><span class="tok-comment"># Tools</span></div>
-            <div class="ide-line">
-              <span class="tok-prompt">$</span> <span class="tok-cmd">git</span> <span class="tok-flag">--tools</span>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="Node.js"><img src="assets/Node.js.svg" alt="Node.js" /></div>
+          </div>
+        </div>
+
+        <!-- 04. DATABASES -->
+        <div class="ide-code-float" data-parallax="0.25">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>13</span>
+              <span>14</span>
+              <span>15</span>
+              <span>16</span>
             </div>
-            <div class="ide-line ide-indent">
-              <span class="tok-str">"Git"</span>, <span class="tok-str">"GitHub"</span>, <span class="tok-str">"Figma"</span>, <span class="tok-str">"VSCode"</span>, <span class="tok-str">"WinForms"</span>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment">// Databases</span></div>
+              <div class="ide-line">
+                <span class="tok-kw">const</span> <span class="tok-var">databases</span> = {
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-prop">relational</span>: [<span class="tok-str">"MySQL"</span>, <span class="tok-str">"SQLite"</span>],
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-prop">cloud</span>: [<span class="tok-str">"Firebase"</span>, <span class="tok-str">"Supabase"</span>]
+              </div>
+              <div class="ide-line">};</div>
             </div>
-            <div class="ide-line">
-              <span class="tok-comment"># Environment &amp; Desktop</span>
+          </div>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="MySQL"><img src="assets/MySQL.svg" alt="MySQL" /></div>
+            <div class="tech-logo-badge" title="SQLite"><img src="assets/SQLite.svg" alt="SQLite" /></div>
+            <div class="tech-logo-badge" title="Firebase"><img src="assets/Firebase.svg" alt="Firebase" /></div>
+            <div class="tech-logo-badge" title="Supabase"><img src="assets/Supabase.svg" alt="Supabase" /></div>
+          </div>
+        </div>
+
+        <!-- 05. TOOLS & DEVOPS -->
+        <div class="ide-code-float" data-parallax="0.30">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>17</span>
+              <span>18</span>
+              <span>19</span>
+              <span>20</span>
             </div>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment"># Tools &amp; DevOps</span></div>
+              <div class="ide-line">
+                <span class="tok-prompt">$</span> <span class="tok-cmd">git</span> <span class="tok-flag">--deploy</span>
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-str">"Git"</span>, <span class="tok-str">"GitHub"</span>, <span class="tok-str">"Vercel"</span>, <span class="tok-str">"VS Code"</span>, <span class="tok-str">"Visual Studio"</span>
+              </div>
+              <div class="ide-line">
+                <span class="tok-comment"># Developer Environment</span>
+              </div>
+            </div>
+          </div>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="Git"><img src="assets/Git.svg" alt="Git" /></div>
+            <div class="tech-logo-badge" title="GitHub"><img src="assets/GitHub.svg" alt="GitHub" /></div>
+            <div class="tech-logo-badge" title="Vercel"><img src="assets/Vercel.svg" alt="Vercel" /></div>
+            <div class="tech-logo-badge" title="Visual Studio"><img src="assets/Visual Studio.svg" alt="Visual Studio" /></div>
+            <div class="tech-logo-badge" title="Visual Studio (VS Code)"><img src="assets/VSCode.svg" alt="Visual Studio (VS Code)" /></div>
+          </div>
+        </div>
+
+        <!-- 06. DESIGN -->
+        <div class="ide-code-float" data-parallax="0.35">
+          <div class="ide-code-content">
+            <div class="ide-gutter">
+              <span>21</span>
+              <span>22</span>
+              <span>23</span>
+              <span>24</span>
+            </div>
+            <div class="ide-code-body">
+              <div class="ide-line"><span class="tok-comment">// Design</span></div>
+              <div class="ide-line">
+                <span class="tok-kw">const</span> <span class="tok-var">designTools</span> = [
+              </div>
+              <div class="ide-line ide-indent">
+                <span class="tok-str">"Figma"</span>, <span class="tok-str">"Canva"</span>
+              </div>
+              <div class="ide-line">];</div>
+            </div>
+          </div>
+          <div class="ide-logos-row">
+            <div class="tech-logo-badge" title="Figma"><img src="assets/Figma.svg" alt="Figma" /></div>
+            <div class="tech-logo-badge" title="Canva"><img src="assets/Canva.svg" alt="Canva" /></div>
           </div>
         </div>
 
